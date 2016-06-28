@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">AudioProcesser</string>
+
+    <string name="app_directroy">audio files storage directroy : /AudioProcessor</string>
+    <string name="sound_recroder_tips">audio recroder : </string>
+    <string name="sound_play_default_directory">play the /AudioProcessor/audio.wav by default</string>
+    <string name="sound_play_tips">play voice:</string>
+    <string name="play_and_record">play and record : </string>
+    <string name="select_recording_file">select a recording file : </string>
+    <string name="play_recording_file_tips">play a recording file : </string>
+    <string name="choose_channel_out">choose a channel out : </string>
+    <!--<string name="speakerphone_choose">choose a speakerphone:</string>-->
+</resources>
