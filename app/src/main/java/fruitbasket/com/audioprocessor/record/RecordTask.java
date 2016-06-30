@@ -1,5 +1,7 @@
 package fruitbasket.com.audioprocessor.record;
 
+import android.media.MediaRecorder;
+
 public class RecordTask implements Runnable {
 	
 	AudioRecordWrapper audioRecordWrapper;
@@ -12,7 +14,7 @@ public class RecordTask implements Runnable {
 
 	public void stopRecording(){
 		if(audioRecordWrapper !=null){
-			audioRecordWrapper.stopRecording();
+			audioRecordWrapper.stopRecoding();
 			audioRecordWrapper =null;
 		}
 	}

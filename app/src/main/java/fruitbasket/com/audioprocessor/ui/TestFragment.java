@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
@@ -14,16 +13,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import fruitbasket.com.audioprocessor.AudioService;
 import fruitbasket.com.audioprocessor.Condition;
 import fruitbasket.com.audioprocessor.R;
 import fruitbasket.com.audioprocessor.play.AudioOutConfig;
-import fruitbasket.com.audioprocessor.record.AudioRecordWrapper;
+import fruitbasket.com.audioprocessor.waveProducer.WaveType;
 
 /**
  * Created by Study on 21/06/2016.
+ * 测试页面
+ * 缺少播放失败的提示///
  */
 public class TestFragment extends Fragment {
 
@@ -36,8 +40,11 @@ public class TestFragment extends Fragment {
     private ToggleButton playAndRecord;
     private ToggleButton playRecordingFile;
     private RadioGroup channelOut;
+    private ToggleButton waveProducer;
+    private SeekBar seekbarWaveRate;
+    private TextView textVeiwWaveRate;
 
-    private AudioManager audioManager;
+    private int waveRate;
 
     private Intent intentToRecord;
     private AudioService audioService;
@@ -68,8 +75,6 @@ public class TestFragment extends Fragment {
             getActivity().bindService(intentToRecord,serviceConnection, Context.BIND_AUTO_CREATE);
             //do not execute startService()
         }
-
-        audioManager=(AudioManager)getActivity().getSystemService(Context.AUDIO_SERVICE);
     }
 
     @Override
@@ -118,19 +123,43 @@ public class TestFragment extends Fragment {
                     case R.id.channel_out_right:
                         audioService.setChannelOut(AudioOutConfig.CHANNEL_OUT_RIGHT);
                         break;
-                    case R.id.channel_out_both:
+                    default:
                         audioService.setChannelOut(AudioOutConfig.CHANNEL_OUT_BOTH);
-                        break;
                 }
             }
         });
+
+        waveProducer =(ToggleButton)view.findViewById(R.id.waveProducer);
+        waveProducer.setOnClickListener(listener);
+
+        textVeiwWaveRate =(TextView)view.findViewById(R.id.text_view_waverate);
+
+        seekbarWaveRate =(SeekBar)view.findViewById(R.id.seekbar_waterate);
+        seekbarWaveRate.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                waveRate =progress*1000;
+                textVeiwWaveRate.setText(progress+" k Hz");
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        waveRate = seekbarWaveRate.getProgress()*1000;
+        textVeiwWaveRate.setText(seekbarWaveRate.getProgress()+"k Hz");
     }
 
     /**
      * 开始录制音频
      */
     private void startRecording(){
-        Log.d(TAG, "startRecording()");
         if(audioService !=null){
             audioService.startRecording();
         }
@@ -140,7 +169,6 @@ public class TestFragment extends Fragment {
      * 停止录制音频
      */
     private void stopRecording(){
-        Log.d(TAG,"stopRecording()");
         if(audioService !=null){
             audioService.stopRecording();
         }
@@ -150,7 +178,6 @@ public class TestFragment extends Fragment {
      * 播放音频文件
      */
     private void startPlayingAudioFile(){
-        Log.d(TAG,"startPlayingAudioFile()");
         if(audioService !=null){
             audioService.startPlayingAudioFile();
         }
@@ -160,7 +187,6 @@ public class TestFragment extends Fragment {
      * 停止播放音频文件
      */
     private void stopPlayingAudioFile(){
-        Log.d(TAG,"stopPlayingAudioFile");
         if(audioService !=null){
             audioService.stopPlayingAudioFile();
         }
@@ -170,10 +196,9 @@ public class TestFragment extends Fragment {
      * 开始播放录音文件（.pcm）文件
      */
     private void startPlayingRecordingFile(){
-        Log.d(TAG,"startPlayingRecordingFile()");
         if(audioService !=null){
             String path= Condition.APP_FILE_DIR+"/"+recordingFilePath.getText().toString().trim();
-            audioService.startPlaying(path, AudioRecordWrapper.RECORDER_SAMPLERATE_CD);
+            audioService.startPlaying(path, Condition.SIMPLE_RATE_CD);
         }
     }
 
@@ -181,13 +206,22 @@ public class TestFragment extends Fragment {
      * 停止播放录音（.pcm）文件
      */
     private void stopPlayingRecordingFile(){
-        Log.d(TAG,"stopPlayingRecordingFile()");
         if(audioService !=null){
             audioService.stopPlaying();
         }
     }
 
+    private void startPlayingWave(){
+        if(audioService!=null){
+            audioService.startPlayingWave(WaveType.SIN, waveRate,Condition.SIMPLE_RATE_CD);
+        }
+    }
 
+    private void stopPlayingWave(){
+        if(audioService!=null){
+            audioService.stopPlayingWave();
+        }
+    }
 
 
     private class ToggleClickListener implements View.OnClickListener {
@@ -232,6 +266,14 @@ public class TestFragment extends Fragment {
                         stopPlayingRecordingFile();
                     }
                     break;
+
+                case R.id.waveProducer:
+                    if(((ToggleButton)view).isChecked()==true){
+                        startPlayingWave();
+                    }
+                    else{
+                        stopPlayingWave();
+                    }
             }
         }
     }

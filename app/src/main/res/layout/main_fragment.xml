@@ -6,6 +6,12 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="V 2.0"/>
+        android:text="version 2.1.1"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+    />
 
 </LinearLayout>
