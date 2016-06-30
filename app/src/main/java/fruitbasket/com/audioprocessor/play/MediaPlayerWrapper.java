@@ -28,20 +28,7 @@ public class MediaPlayerWrapper {
 
     public void setAudioOutConfig(AudioOutConfig audioOutConfig){
         this.audioOutConfig=audioOutConfig;
-        if(audioOutConfig!=null
-            &&mediaPlayer!=null){
-            switch(audioOutConfig.getChannelOut()){
-                case AudioOutConfig.CHANNEL_OUT_LEFT:
-                    mediaPlayer.setVolume(0.5f,0.0f);
-                    break;
-                case AudioOutConfig.CHANNEL_OUT_RIGHT:
-                    mediaPlayer.setVolume(0.0f,0.5f);
-                    break;
-                case AudioOutConfig.CHANNEL_OUT_BOTH:
-                    mediaPlayer.setVolume(0.5f,0.5f);
-                    break;
-            }
-        }
+        adjustMediaPlayer();
     }
 
     public void setChannelOut(int channelOut){
@@ -51,8 +38,16 @@ public class MediaPlayerWrapper {
         else{
             audioOutConfig.setChannelOut(channelOut);
         }
+        adjustMediaPlayer();
+    }
 
-        if(mediaPlayer!=null){
+    public MediaPlayer getMediaPlayer(){
+        return mediaPlayer;
+    }
+
+    private void adjustMediaPlayer(){
+        if(audioOutConfig!=null
+                &&mediaPlayer!=null){
             switch(audioOutConfig.getChannelOut()){
                 case AudioOutConfig.CHANNEL_OUT_LEFT:
                     mediaPlayer.setVolume(0.5f,0.0f);
@@ -65,9 +60,5 @@ public class MediaPlayerWrapper {
                     break;
             }
         }
-    }
-
-    public MediaPlayer getMediaPlayer(){
-        return mediaPlayer;
     }
 }

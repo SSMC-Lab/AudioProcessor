@@ -9,22 +9,30 @@ import android.util.Log;
 import fruitbasket.com.audioprocessor.play.AudioOutConfig;
 import fruitbasket.com.audioprocessor.play.CommonPlayTask;
 import fruitbasket.com.audioprocessor.play.PCMPlayTask;
+import fruitbasket.com.audioprocessor.play.WavePlayTask;
 import fruitbasket.com.audioprocessor.record.RecordTask;
+import fruitbasket.com.audioprocessor.waveProducer.WaveType;
 
 /**
  * 执行录制音频和播放音频操作的服务
  */
 public class AudioService extends Service {
 	private static final String TAG="RecordService";
-	
+
+	///这里可能会引发多个线程同时播放声音的问题
+	///多次调用播放同一声音方法时可能能会出问题
+
 	private Thread recordThread;
 	private RecordTask recordTask;
 	
 	private Thread pcmPlayThread;
 	private PCMPlayTask PCMPlayTask;
 
-	private Thread soundFilePlayThread;
+	private Thread audioFilePlayThread;
 	private CommonPlayTask commonPlayTask;
+
+	private Thread wavePlayThread;
+	private WavePlayTask wavePlayTask;
 
 	private AudioOutConfig audioOutConfig;
 	
@@ -74,7 +82,7 @@ public class AudioService extends Service {
 	 * @param sampleRate
      */
 	public void startPlaying(String recordingFilePath,int sampleRate){
-		PCMPlayTask =new PCMPlayTask(recordingFilePath,sampleRate,audioOutConfig);
+		PCMPlayTask =new PCMPlayTask(recordingFilePath,audioOutConfig);
 		pcmPlayThread =new Thread(PCMPlayTask);
 		pcmPlayThread.start();
 	}
@@ -91,8 +99,8 @@ public class AudioService extends Service {
 	 */
 	public void startPlayingAudioFile(){
 		commonPlayTask =new CommonPlayTask(Condition.SOUND_FILE_PATH,audioOutConfig);
-		soundFilePlayThread=new Thread(commonPlayTask);
-		soundFilePlayThread.start();
+		audioFilePlayThread =new Thread(commonPlayTask);
+		audioFilePlayThread.start();
 	}
 
 	/**
@@ -100,8 +108,8 @@ public class AudioService extends Service {
      */
 	public void startPlayingAudioFile(String audioPath){
 		commonPlayTask =new CommonPlayTask(audioPath,audioOutConfig);
-		soundFilePlayThread=new Thread(commonPlayTask);
-		soundFilePlayThread.start();
+		audioFilePlayThread =new Thread(commonPlayTask);
+		audioFilePlayThread.start();
 	}
 
 	/**
@@ -111,6 +119,19 @@ public class AudioService extends Service {
 		if(commonPlayTask !=null){
 			commonPlayTask.stopPlaying();
 			commonPlayTask =null;
+		}
+	}
+
+	public void startPlayingWave(WaveType waveType,int waveRate,int sampleRate){
+		wavePlayTask=new WavePlayTask(waveType,waveRate,sampleRate,audioOutConfig);
+		wavePlayThread=new Thread(wavePlayTask);
+		wavePlayThread.start();
+	}
+
+	public void stopPlayingWave(){
+		if(wavePlayTask!=null){
+			wavePlayTask.stopPlaying();
+			wavePlayTask=null;
 		}
 	}
 

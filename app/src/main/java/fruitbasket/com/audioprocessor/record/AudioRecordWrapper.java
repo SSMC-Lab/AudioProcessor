@@ -8,34 +8,36 @@ import android.util.Log;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 
+import fruitbasket.com.audioprocessor.Condition;
 import fruitbasket.com.audioprocessor.DataIOHelper;
 
 /**
- * 执行声音录制
+ * 录制声音
  */
 public class AudioRecordWrapper {
 	private static final String TAG=AudioRecordWrapper.class.toString();
-	
 	private static final int DEFAULT_BUFFER_INCREASE_FACTOR=3;
-	public static final int RECORDER_SAMPLERATE_CD=44100;//CD的采样频率
 	
-	private AudioRecord recorder1;
-	//private AudioRecord recorder2;
-
-	private boolean isContinueRecording; //state variable to control starting and stopping recording
+	private AudioRecord recorder;
+	private String audioFileName;
+	private WavHeader wavHeader;
 	
-	public AudioRecordWrapper(){}
+	public AudioRecordWrapper(){
+		wavHeader=new WavHeader();
+	}
 	
 	/**
-	 * uses AudioRecord.getMinBufferSize() as the recording and the reading buffer size
+	 * 开始录制音频
 	 * @return
 	 */
 	public boolean startRecording(){
-		return startRecording(RECORDER_SAMPLERATE_CD,AudioFormat.ENCODING_PCM_16BIT);
+		return startRecording(Condition.SIMPLE_RATE_CD,AudioFormat.ENCODING_PCM_16BIT);
 	}
 	
 	/**
@@ -99,19 +101,15 @@ public class AudioRecordWrapper {
 	 * @throws IOException 
 	 */
 	private boolean doRecording(final int sampleRate,int encoding,int recordingBufferSize,int readBufferSize,int bufferIncreaseFactor) throws IOException{
-		String fileName= DataIOHelper.getRecordedFileName();
-		File file1=new File(fileName);
-		//File file2=new File("test");
-		file1.createNewFile();
-		//file2.createNewFile();
+		audioFileName= DataIOHelper.getRecordedFileName("pcm");///
+		File audioFile=new File(audioFileName);
+		audioFile.createNewFile();
 
-		OutputStream is1 = new FileOutputStream(file1);
-        BufferedOutputStream bis1 = new BufferedOutputStream(is1);
-        DataOutputStream output1 = new DataOutputStream(bis1);
-
-		/*OutputStream is2=new FileOutputStream(file2);
-		BufferedOutputStream bis2 = new BufferedOutputStream(is2);
-		DataOutputStream output2 = new DataOutputStream(bis2);*/
+        DataOutputStream output = new DataOutputStream(
+				new BufferedOutputStream(
+						new FileOutputStream(audioFile)
+				)
+		);
 		
 		if(recordingBufferSize==AudioRecord.ERROR_BAD_VALUE){
 			Log.e(TAG,"recordingBufferSize==AudioRecord.ERROR_BAD_VALUE");
@@ -123,80 +121,58 @@ public class AudioRecordWrapper {
 		}
 		//give it extra space to prevent overflow
 		int increasedRecordingBufferSize=recordingBufferSize * bufferIncreaseFactor;
-		recorder1 =
+		recorder =
 				new AudioRecord(AudioSource.MIC,
 						sampleRate,
 						AudioFormat.CHANNEL_IN_MONO,
 						encoding,
 						increasedRecordingBufferSize);
-		/*recorder2=
-				new AudioRecord(AudioSource.CAMCORDER,
-						sampleRate,
-						AudioFormat.CHANNEL_IN_MONO,
-						encoding,
-						increasedRecordingBufferSize);*/
-		 final short[] readBuffer1=new short[readBufferSize];
-		//final short[] readBuffer2=new short[readBufferSize];
-		 isContinueRecording =true;
-		 recorder1.startRecording();
-		 //recorder2.startRecording();
-		 while(isContinueRecording ==true){
-			 //bufferReasult is a state code or the length of readBuffer
 
-			 final int bufferResult1= recorder1.read(readBuffer1, 0,readBufferSize);
-			 //final int bufferResult2=recorder2.read(readBuffer2, 0,readBufferSize);
-			 if(isContinueRecording ==false){
-				 break;
+		 final short[] readBuffer=new short[readBufferSize];
+
+		 recorder.startRecording();
+
+		 while(recorder.getRecordingState() ==AudioRecord.RECORDSTATE_RECORDING){
+			 //bufferReasult is a state code or the length of readBuffer
+			 final int bufferResult= recorder.read(readBuffer, 0,readBufferSize);
+			 if(bufferResult==AudioRecord.ERROR_INVALID_OPERATION){
+				 Log.e(TAG,"bufferResult==AudioRecord.ERROR_INVALID_OPERATION");
 			 }
-			 
-			 if(bufferResult1==AudioRecord.ERROR_INVALID_OPERATION){
-				 Log.e(TAG,"bufferResult1==AudioRecord.ERROR_INVALID_OPERATION");
+			 else if(bufferResult==AudioRecord.ERROR_BAD_VALUE){
+				 Log.e(TAG,"bufferResult==AudioRecord.ERROR_BAD_VALUE");
 			 }
-			 /*else if(bufferResult2==AudioRecord.ERROR_INVALID_OPERATION){
-				 Log.e(TAG,"bufferResult2==AudioRecord.ERROR_INVALID_OPERATION");
-			 }*/
-			 else if(bufferResult1==AudioRecord.ERROR_BAD_VALUE){
-				 Log.e(TAG,"bufferResult1==AudioRecord.ERROR_BAD_VALUE");
-			 }
-			 /*else if(bufferResult2==AudioRecord.ERROR_BAD_VALUE){
-				 Log.e(TAG,"bufferResult2==AudioRecord.ERROR_BAD_VALUE");
-			 }*/
 			 else{
 				 //save the data
 				 int i;
-				 for(i=0;i<bufferResult1;++i){
-					 output1.writeShort(readBuffer1[i]);
+				 for(i=0;i<bufferResult;++i){
+					 output.writeShort(readBuffer[i]);
 				 }
-				 /*for(i=0;i<bufferResult2;++i){
-					 output2.writeShort(readBuffer2[i]);
-				 }*/
 			 }
 		 }
-		 //output2.close();
-		 output1.close();
-		 recordingDone();
-
+		 output.close();
+		//插入wav文件头
+		///这里应使用wav存储格式
+		 /*RandomAccessFile accessFile=new RandomAccessFile(audioFile,"rw");
+		//这里的设置要和audioRecord 的设置对应
+		wavHeader.setAdjustFileLength((int)accessFile.length()+44-8);
+		wavHeader.setAudioDataLength((int)accessFile.length());
+		wavHeader.setBlockAlign(AudioFormat.CHANNEL_IN_MONO,encoding);
+		wavHeader.setByteRate(AudioFormat.CHANNEL_IN_MONO,sampleRate,encoding);
+		wavHeader.setChannelCount(AudioFormat.CHANNEL_IN_MONO);
+		wavHeader.setEncodingBit(encoding);
+		wavHeader.setSampleRate(sampleRate);
+		wavHeader.setWaveFormatPcm(WavHeader.WAV_FORMAT_PCM);
+		 accessFile.seek(0);
+		accessFile.write(wavHeader.getHeader());
+		accessFile.close();*/
 		return true;
 	}
-	
-	public boolean isRecording(){
-		return isContinueRecording;
-	}
-	
-	public void stopRecording(){
-		isContinueRecording =false;
-	}
-	
-	public void recordingDone(){
-		if(recorder1 !=null){
-			recorder1.stop();
-			recorder1.release();
-			recorder1 =null;
+
+	public void stopRecoding(){
+		if(recorder !=null){
+			recorder.stop();
+			recorder.release();
+			recorder =null;
 		}
-		/*if(recorder2!=null){
-			recorder2.stop();
-			recorder2.release();
-			recorder2=null;
-		}*/
 	}
 }

@@ -10,17 +10,15 @@ final public class PCMPlayTask implements Runnable{
 	
 	private AudioTrackWrapper audioTrackWrapper;
 	
-	private String audioPath =null;	//the full path and the name of the music data
-	private int sampleRate=0; //the sample rate of the music data
+	private String audioPath;	//the full path and the name of the audio file
 	private AudioOutConfig audioOutConfig;
 	
-	public PCMPlayTask(String audioPath, int sampleRate){
-		this(audioPath,sampleRate,null);
+	public PCMPlayTask(String audioPath){
+		this(audioPath,null);
 	}
 
-	public PCMPlayTask(String audioPath,int sampleRate,AudioOutConfig audioOutConfig){
+	public PCMPlayTask(String audioPath,AudioOutConfig audioOutConfig){
 		this.audioPath =audioPath;
-		this.sampleRate=sampleRate;
 		this.audioOutConfig=audioOutConfig;
 	}
 	
@@ -28,26 +26,24 @@ final public class PCMPlayTask implements Runnable{
 	public void run(){
 		Log.d(TAG,"run()");
 		audioTrackWrapper =new AudioTrackWrapper(audioOutConfig);
-		if(audioPath !=null&&sampleRate!=0){
-			audioTrackWrapper.startPlaying(audioPath, sampleRate);
+		if(audioPath !=null){
+			audioTrackWrapper.startPlaying(audioPath);
 		}
 		else{
-			Log.e(TAG,"audioPath==null && sampleRate==0");
+			Log.e(TAG,"audioPath==null");
 		}
 	}
 
 	public void stopPlaying(){
 		if(audioTrackWrapper !=null){
 			audioTrackWrapper.stopPlaying();
-			audioTrackWrapper =null;
-			
+			audioTrackWrapper.releaseResource();
+			audioTrackWrapper=null;
 			audioPath =null;
-			sampleRate=0;
 		}
 	}
 	
-	public void setParameters(String audioPath,int sampleRate){
+	public void setParameters(String audioPath){
 		this.audioPath =audioPath;
-		this.sampleRate=sampleRate;
 	}
 }

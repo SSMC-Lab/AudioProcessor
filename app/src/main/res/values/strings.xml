@@ -9,5 +9,5 @@
     <string name="select_recording_file">select a recording file : </string>
     <string name="play_recording_file_tips">play a recording file : </string>
     <string name="choose_channel_out">choose a channel out : </string>
-    <!--<string name="speakerphone_choose">choose a speakerphone:</string>-->
+    <string name="wave_producer">wave producer : </string>
 </resources>

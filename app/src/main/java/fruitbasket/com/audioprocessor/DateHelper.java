@@ -1,5 +1,7 @@
 package fruitbasket.com.audioprocessor;
 
+import android.os.SystemClock;
+
 import java.text.SimpleDateFormat;
 
 final public class DateHelper {
@@ -13,10 +15,10 @@ final public class DateHelper {
 
 
 	/**
-	 * get the current time with the format of "HH_mm_ss"
+	 * get the current time in secound
 	 * @return
      */
-	public static String getCurrentTime(){
-		return new SimpleDateFormat("yyyyMMdd_HHmmss").format(System.currentTimeMillis());
-	}///
+	public static long getCurrentTime(){
+		return System.currentTimeMillis();
+	}
 }
