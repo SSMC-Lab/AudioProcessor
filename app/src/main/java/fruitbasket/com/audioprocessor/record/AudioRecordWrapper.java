@@ -101,7 +101,7 @@ public class AudioRecordWrapper {
 	 * @throws IOException 
 	 */
 	private boolean doRecording(final int sampleRate,int encoding,int recordingBufferSize,int readBufferSize,int bufferIncreaseFactor) throws IOException{
-		audioFileName= DataIOHelper.getRecordedFileName("pcm");///
+		audioFileName= DataIOHelper.getRecordedFileName("wav");
 		File audioFile=new File(audioFileName);
 		audioFile.createNewFile();
 
@@ -151,8 +151,7 @@ public class AudioRecordWrapper {
 		 }
 		 output.close();
 		//插入wav文件头
-		///这里应使用wav存储格式
-		 /*RandomAccessFile accessFile=new RandomAccessFile(audioFile,"rw");
+		RandomAccessFile accessFile=new RandomAccessFile(audioFile,"rw");
 		//这里的设置要和audioRecord 的设置对应
 		wavHeader.setAdjustFileLength((int)accessFile.length()+44-8);
 		wavHeader.setAudioDataLength((int)accessFile.length());
@@ -163,8 +162,8 @@ public class AudioRecordWrapper {
 		wavHeader.setSampleRate(sampleRate);
 		wavHeader.setWaveFormatPcm(WavHeader.WAV_FORMAT_PCM);
 		 accessFile.seek(0);
-		accessFile.write(wavHeader.getHeader());
-		accessFile.close();*/
+		//accessFile.write(wavHeader.getHeader());
+		accessFile.close();
 		return true;
 	}
 

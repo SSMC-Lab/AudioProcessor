@@ -12,7 +12,7 @@ final public class DataIOHelper {
 	}
 	
 	/**
-	 * get a file name ends with ".pcm"
+	 * get a file name
 	 * @return 
 	 */
 	public static String getRecordedFileName(String extensionName){
