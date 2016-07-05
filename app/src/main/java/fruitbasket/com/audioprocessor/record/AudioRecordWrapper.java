@@ -34,21 +34,21 @@ public class AudioRecordWrapper {
 	
 	/**
 	 * 开始录制音频
-	 * @return
+	 * @return ture 录音完成，false 录音失败
 	 */
 	public boolean startRecording(){
-		return startRecording(Condition.SIMPLE_RATE_CD,AudioFormat.ENCODING_PCM_16BIT);
+		return startRecording(Condition.SIMPLE_RATE_CD,AudioFormat.CHANNEL_IN_MONO,AudioFormat.ENCODING_PCM_16BIT);
 	}
 	
 	/**
 	 * 
 	 * @param sampleRate : the number of  samples per second
 	 * @param encoding: specific the quantity of bit of each voice frame
-	 * @return
+	 * @return ture 录音完成，false 录音失败
 	 */
-	public boolean startRecording(final int sampleRate,int encoding){
+	public boolean startRecording(final int sampleRate,int channelIn,int encoding){
 		boolean state = false;
-		int bufferSize=determineMinimumBufferSize(sampleRate,encoding);
+		int bufferSize=AudioRecord.getMinBufferSize(sampleRate,channelIn,encoding);
 		try {
 			state=doRecording(sampleRate,encoding,bufferSize,bufferSize,DEFAULT_BUFFER_INCREASE_FACTOR);
 		} catch (IOException e) {
@@ -56,54 +56,22 @@ public class AudioRecordWrapper {
 		}
 		return state;
 	}
-	
-	/**
-	 * get the minimum audio buffer size, according to the sample rate and encording
-	 * @param sampleRate
-	 * @param encoding
-	 * @return
-	 */
-	private int determineMinimumBufferSize(final int sampleRate,int encoding){
-		return AudioRecord.getMinBufferSize(sampleRate,AudioFormat.CHANNEL_IN_MONO,encoding);
-	}
-	
-	/**
-	 * calculate audio buffer size such that it holds numSamplesInBuffer and is bigger than the minimum size, according to sample rate,encoding and numSamplesInBuffer
-	 * @param sampleRate : the number of  samples per second
-	 * @param encoding
-	 * @param numSamplesInBuffer : the quantity of samples should be saved in the audio buffer
-	 * @return
-	 */
-	private int determineCalculateBufferSize(final int sampleRate,int encoding,int numSamplesInBuffer){
-		int minBufferSize=determineMinimumBufferSize(sampleRate,encoding);
-		int bufferSize;
-		if(encoding==AudioFormat.ENCODING_PCM_16BIT){
-			bufferSize=numSamplesInBuffer*2;
-		}
-		else{
-			bufferSize=numSamplesInBuffer;
-		}
-		///
-		if(bufferSize<minBufferSize){
-			bufferSize=minBufferSize;
-		}
-		return bufferSize;
-	}
-	
+
 	/**
 	 * 
-	 * @param sampleRate
-	 * @param encoding
-	 * @param recordingBufferSize
-	 * @param readBufferSize
-	 * @param bufferIncreaseFactor
-	 * @return
+	 * @param sampleRate 采样频率
+	 * @param encoding 编码格式
+	 *                    See {@link AudioFormat#ENCODING_PCM_8BIT}, {@link AudioFormat#ENCODING_PCM_16BIT},
+	 * @param recordingBufferSize the total size (in bytes) of the buffer where audio data is written to during the recording
+	 * @param readBufferSize 读取数据的缓冲区的大小（字节数）
+	 * @param bufferIncreaseFactor 用于增加缓冲区recordingBufferSize的因子
+	 * @return ture 录音完成，false 录音失败
 	 * @throws IOException 
 	 */
 	private boolean doRecording(final int sampleRate,int encoding,int recordingBufferSize,int readBufferSize,int bufferIncreaseFactor) throws IOException{
-		audioFileName= DataIOHelper.getRecordedFileName("pcm");///
+		audioFileName= DataIOHelper.getRecordedFileName("pcm");
 		File audioFile=new File(audioFileName);
-		audioFile.createNewFile();
+		//audioFile.createNewFile();
 
         DataOutputStream output = new DataOutputStream(
 				new BufferedOutputStream(
@@ -132,23 +100,28 @@ public class AudioRecordWrapper {
 
 		 recorder.startRecording();
 
+		//readState is a state code or the length of readBuffer
+		int readState;
 		 while(recorder.getRecordingState() ==AudioRecord.RECORDSTATE_RECORDING){
-			 //bufferReasult is a state code or the length of readBuffer
-			 final int bufferResult= recorder.read(readBuffer, 0,readBufferSize);
-			 if(bufferResult==AudioRecord.ERROR_INVALID_OPERATION){
-				 Log.e(TAG,"bufferResult==AudioRecord.ERROR_INVALID_OPERATION");
+			 readState= recorder.read(readBuffer, 0,readBufferSize);
+			 if(readState==AudioRecord.ERROR_INVALID_OPERATION){
+				 Log.e(TAG,"readState==AudioRecord.ERROR_INVALID_OPERATION");
 			 }
-			 else if(bufferResult==AudioRecord.ERROR_BAD_VALUE){
-				 Log.e(TAG,"bufferResult==AudioRecord.ERROR_BAD_VALUE");
+			 else if(readState==AudioRecord.ERROR_BAD_VALUE){
+				 Log.e(TAG,"readState==AudioRecord.ERROR_BAD_VALUE");
 			 }
 			 else{
 				 //save the data
 				 int i;
-				 for(i=0;i<bufferResult;++i){
+				 for(i=0;i<readState;++i){
 					 output.writeShort(readBuffer[i]);
 				 }
 			 }
 		 }
+		recorder.release();
+		recorder=null;
+
+		output.flush();
 		 output.close();
 		//插入wav文件头
 		///这里应使用wav存储格式
@@ -171,8 +144,6 @@ public class AudioRecordWrapper {
 	public void stopRecoding(){
 		if(recorder !=null){
 			recorder.stop();
-			recorder.release();
-			recorder =null;
 		}
 	}
 }

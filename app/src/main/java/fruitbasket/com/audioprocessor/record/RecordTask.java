@@ -1,7 +1,5 @@
 package fruitbasket.com.audioprocessor.record;
 
-import android.media.MediaRecorder;
-
 public class RecordTask implements Runnable {
 	
 	AudioRecordWrapper audioRecordWrapper;
