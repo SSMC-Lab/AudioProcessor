@@ -15,7 +15,6 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import fruitbasket.com.audioprocessor.AudioService;
@@ -134,7 +133,7 @@ public class TestFragment extends Fragment {
 
         textVeiwWaveRate =(TextView)view.findViewById(R.id.text_view_waverate);
 
-        seekbarWaveRate =(SeekBar)view.findViewById(R.id.seekbar_waterate);
+        seekbarWaveRate =(SeekBar)view.findViewById(R.id.seekbar_waverate);
         seekbarWaveRate.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {

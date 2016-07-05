@@ -21,6 +21,7 @@ final public class MyApp extends Application {
 		//makes the main directroy of the application
 		File appDirectroy=new File(Condition.APP_FILE_DIR);
 		appDirectroy.mkdirs();
+		Log.e(TAG,"onCreate()");
 	}
 	
 }
