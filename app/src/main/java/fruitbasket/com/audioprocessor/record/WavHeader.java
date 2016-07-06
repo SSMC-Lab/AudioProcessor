@@ -6,7 +6,6 @@ import android.media.AudioFormat;
 public class WavHeader {
     public static final short WAV_FORMAT_PCM=1;
 
-
     private byte[] header;
 
     public WavHeader(){
@@ -78,7 +77,6 @@ public class WavHeader {
         header[5] = (byte) ((length >> 8) & 0xff);
         header[6] = (byte) ((length >> 16) & 0xff);
         header[7] = (byte) ((length >> 24) & 0xff);
-
         return true;
     }
 
@@ -110,6 +108,7 @@ public class WavHeader {
         header[25]=(byte)((sampleRate>>8)&0xff);
         header[26]=(byte)((sampleRate>>16)&0xff);
         header[27]=(byte)((sampleRate>>24)&0xff);
+
         return true;
     }
 
