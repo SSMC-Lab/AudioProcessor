@@ -16,11 +16,10 @@ import fruitbasket.com.audioprocessor.waveProducer.WaveType;
 /**
  * 执行录制音频和播放音频操作的服务
  */
+///这里可能会引发多个线程同时播放声音的问题
+///多次调用播放同一声音方法时可能能会出问题
 public class AudioService extends Service {
-	private static final String TAG="RecordService";
-
-	///这里可能会引发多个线程同时播放声音的问题
-	///多次调用播放同一声音方法时可能能会出问题
+	private static final String TAG=AudioService.class.toString();
 
 	private Thread recordThread;
 	private RecordTask recordTask;
@@ -79,7 +78,7 @@ public class AudioService extends Service {
 	/**
 	 * 开始播放录制的音频
 	 * @param recordingFilePath 指定一个录制的音频，音频的格式必须为pcm
-	 * @param sampleRate
+	 * @param sampleRate 采样频率
      */
 	public void startPlaying(String recordingFilePath,int sampleRate){
 		PCMPlayTask =new PCMPlayTask(recordingFilePath,audioOutConfig);
@@ -98,7 +97,7 @@ public class AudioService extends Service {
 	 * 开始播放一个音频文件
 	 */
 	public void startPlayingAudioFile(){
-		commonPlayTask =new CommonPlayTask(Condition.SOUND_FILE_PATH,audioOutConfig);
+		commonPlayTask =new CommonPlayTask(Condition.AUDIO_FILE_PATH,audioOutConfig);
 		audioFilePlayThread =new Thread(commonPlayTask);
 		audioFilePlayThread.start();
 	}

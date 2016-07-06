@@ -12,8 +12,8 @@ final public class DataIOHelper {
 	}
 	
 	/**
-	 * get a file name ends with ".pcm"
-	 * @return 
+	 * get a recorded file name by time
+	 * @return  the file name
 	 */
 	public static String getRecordedFileName(String extensionName){
 		return Condition.APP_FILE_DIR+File.separator+DateHelper.getCurrentTime()+"."+extensionName;

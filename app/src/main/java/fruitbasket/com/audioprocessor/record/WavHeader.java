@@ -6,7 +6,6 @@ import android.media.AudioFormat;
 public class WavHeader {
     public static final short WAV_FORMAT_PCM=1;
 
-
     private byte[] header;
 
     public WavHeader(){
@@ -52,11 +51,11 @@ public class WavHeader {
          */
 
         /*
-        header[28~31] 存放 每秒数据量：通道数*采样频率*每样本数据位数/8
+        header[28~31] 存放 每秒数据量：通道数*采样频率*每个样本数据位数/8
          */
 
         /*
-        header[32，33] 存放 数据块的调整数（按字节算的）：通道数*每样本的数据位值/8。播放软件需要一次处理多个该值大小的字节数据，以便将其值用于缓冲区的调整。
+        header[32，33] 存放 数据块的调整数（按字节算的）：通道数*每个样本的数据位值/8。播放软件需要一次处理多个该值大小的字节数据，以便将其值用于缓冲区的调整。
          */
 
         /*
@@ -73,20 +72,22 @@ public class WavHeader {
          */
     }
 
-    public void setAdjustFileLength(int length){
+    public boolean setAdjustFileLength(int length){
         header[4] = (byte) (length & 0xff);
         header[5] = (byte) ((length >> 8) & 0xff);
         header[6] = (byte) ((length >> 16) & 0xff);
         header[7] = (byte) ((length >> 24) & 0xff);
+        return true;
     }
 
-    public void setWaveFormatPcm(short format){
+    public boolean setWaveFormatPcm(short format){
         header[20]=(byte)(format&0xff);
         header[21]=(byte)((format>>8)&0xff);
+        return true;
     }
 
-    public void setChannelCount(int channelIn){
-        short channelCount=0;
+    public boolean setChannelCount(int channelIn){
+        short channelCount;
         if(channelIn== AudioFormat.CHANNEL_IN_MONO){
             channelCount=1;
         }
@@ -94,23 +95,26 @@ public class WavHeader {
             channelCount=2;
         }
         else{
-
+            return false;
         }
 
         header[22]=(byte)(channelCount&0xff);
         header[23]=(byte)((channelCount>>8)&0xff);
+        return true;
     }
 
-    public void setSampleRate(int sampleRate){
+    public boolean setSampleRate(int sampleRate){
         header[24]=(byte)(sampleRate&0xff);
         header[25]=(byte)((sampleRate>>8)&0xff);
         header[26]=(byte)((sampleRate>>16)&0xff);
         header[27]=(byte)((sampleRate>>24)&0xff);
+
+        return true;
     }
 
-    public void setByteRate(int channelIn,int sampleRate,int encodingPcm){
-        short channelCount=0;
-        short encodingBit=0;
+    public boolean setByteRate(int channelIn,int sampleRate,int encodingPcm){
+        short channelCount;
+        short encodingBit;
 
         if(channelIn== AudioFormat.CHANNEL_IN_MONO){
             channelCount=1;
@@ -119,7 +123,7 @@ public class WavHeader {
             channelCount=2;
         }
         else{
-
+            return false;
         }
         if(encodingPcm==AudioFormat.ENCODING_PCM_8BIT){
             encodingBit=8;
@@ -128,7 +132,7 @@ public class WavHeader {
             encodingBit=16;
         }
         else{
-
+            return false;
         }
 
         int byteRate=channelCount*sampleRate*encodingBit/8;
@@ -136,11 +140,12 @@ public class WavHeader {
         header[29]=(byte)((byteRate>>8)&0xff);
         header[30]=(byte)((byteRate>>16)&0xff);
         header[31]=(byte)((byteRate>>24)&0xff);
+        return true;
     }
 
-    public void setBlockAlign(int channelIn,int encodingPcm){
-        short channelCount=0;
-        short encodingBit=0;
+    public boolean setBlockAlign(int channelIn,int encodingPcm){
+        short channelCount;
+        short encodingBit;
         if(channelIn== AudioFormat.CHANNEL_IN_MONO){
             channelCount=1;
         }
@@ -148,7 +153,7 @@ public class WavHeader {
             channelCount=2;
         }
         else{
-
+            return false;
         }
         if(encodingPcm==AudioFormat.ENCODING_PCM_8BIT){
             encodingBit=8;
@@ -157,15 +162,16 @@ public class WavHeader {
             encodingBit=16;
         }
         else{
-
+            return false;
         }
         short blockAlign=(short)(channelCount*encodingBit/8);
         header[32]=(byte)(blockAlign&0xff);
         header[33]=(byte)((blockAlign>>8)&0xff);
+        return true;
     }
 
-    public void setEncodingBit(int encodingPcm){
-        short encodingBit=0;
+    public boolean setEncodingBit(int encodingPcm){
+        short encodingBit;
         if(encodingPcm==AudioFormat.ENCODING_PCM_8BIT){
             encodingBit=8;
         }
@@ -173,18 +179,20 @@ public class WavHeader {
             encodingBit=16;
         }
         else{
-
+            return false;
         }
 
         header[34]=(byte)(encodingBit&0xff);
         header[35]=(byte)((encodingBit>>8)&0xff);
+        return true;
     }
 
-    public void setAudioDataLength(int length){
+    public boolean setAudioDataLength(int length){
         header[40]=(byte)(length&0xff);
         header[41]=(byte)((length>>8)&0xff);
         header[42]=(byte)((length>>16)&0xff);
         header[43]=(byte)((length>>24)&0xff);
+        return true;
     }
 
     public byte[] getHeader(){
