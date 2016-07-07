@@ -25,7 +25,7 @@ package fruitbasket.com.audioprocessor.play;
     }
 
     public void setChannelOut(int channelOut) {
-        //确保this.mChannelOut的值合法
+        //确保this.channelOut的值合法
         switch(channelOut){
             case CHANNEL_OUT_LEFT:
             case CHANNEL_OUT_RIGHT:

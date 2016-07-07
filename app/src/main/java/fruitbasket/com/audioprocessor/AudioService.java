@@ -97,7 +97,7 @@ public class AudioService extends Service {
 	 * 开始播放一个音频文件
 	 */
 	public void startPlayingAudioFile(){
-		commonPlayTask =new CommonPlayTask(Condition.SOUND_FILE_PATH,audioOutConfig);
+		commonPlayTask =new CommonPlayTask(Condition.AUDIO_FILE_PATH,audioOutConfig);
 		audioFilePlayThread =new Thread(commonPlayTask);
 		audioFilePlayThread.start();
 	}

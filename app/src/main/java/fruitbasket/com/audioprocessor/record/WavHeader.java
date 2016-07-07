@@ -5,8 +5,7 @@ import android.media.AudioFormat;
 import android.util.Log;
 
 public class WavHeader {
-    public static final short WAV_FORMAT_PCM = 1;
-    public static final String TAG = WavHeader.class.toString();
+    public static final short WAV_FORMAT_PCM=1;
 
     private byte[] header;
 
@@ -75,7 +74,6 @@ public class WavHeader {
     }
 
     public boolean setAdjustFileLength(long length) {
-        Log.e(TAG, "adjuestFileLength = " + length);
         header[4] = (byte) (length & 0xff);
         header[5] = (byte) ((length >> 8) & 0xff);
         header[6] = (byte) ((length >> 16) & 0xff);
@@ -84,14 +82,12 @@ public class WavHeader {
     }
 
     public boolean setWaveFormatPcm(short format) {
-        Log.e(TAG, "waveFormatPcm = " + format);
         header[20] = (byte) (format & 0xff);
         header[21] = (byte) ((format >> 8) & 0xff);
         return true;
     }
 
     public boolean setChannelCount(int channelIn) {
-        Log.e(TAG, "channelCount = " + channelIn);
         short channelCount;
         if (channelIn == AudioFormat.CHANNEL_IN_MONO) {
             channelCount = 1;
@@ -106,17 +102,16 @@ public class WavHeader {
         return true;
     }
 
-    public boolean setSampleRate(int sampleRate) {
-        Log.e(TAG, "sampleRate = " + sampleRate);
-        header[24] = (byte) (sampleRate & 0xff);
-        header[25] = (byte) ((sampleRate >> 8) & 0xff);
-        header[26] = (byte) ((sampleRate >> 16) & 0xff);
-        header[27] = (byte) ((sampleRate >> 24) & 0xff);
+
+    public boolean setSampleRate(int sampleRate){
+        header[24]=(byte)(sampleRate&0xff);
+        header[25]=(byte)((sampleRate>>8)&0xff);
+        header[26]=(byte)((sampleRate>>16)&0xff);
+        header[27]=(byte)((sampleRate>>24)&0xff);
         return true;
     }
 
     public boolean setByteRate(int channelIn, int sampleRate, int encodingPcm) {
-        Log.e(TAG, "byteRate = " + channelIn + "  " + sampleRate + "  " + encodingPcm);
         short channelCount;
         short encodingBit;
 
@@ -144,7 +139,6 @@ public class WavHeader {
     }
 
     public boolean setBlockAlign(int channelIn, int encodingPcm) {
-        Log.e(TAG, "blockAlign = " + channelIn + " " + encodingPcm);
         short channelCount;
         short encodingBit;
         if (channelIn == AudioFormat.CHANNEL_IN_MONO) {
@@ -168,7 +162,6 @@ public class WavHeader {
     }
 
     public boolean setEncodingBit(int encodingPcm) {
-        Log.e(TAG, "encodingBit = " + encodingPcm);
         short encodingBit;
         if (encodingPcm == AudioFormat.ENCODING_PCM_8BIT) {
             encodingBit = 8;
@@ -184,7 +177,6 @@ public class WavHeader {
     }
 
     public boolean setAudioDataLength(long length) {
-        Log.e(TAG, "audioDataLength = " + length);
         header[40] = (byte) (length & 0xff);
         header[41] = (byte) ((length >> 8) & 0xff);
         header[42] = (byte) ((length >> 16) & 0xff);

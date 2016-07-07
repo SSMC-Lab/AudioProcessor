@@ -138,7 +138,7 @@ public class TestFragment extends Fragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 waveRate =progress*1000;
-                textVeiwWaveRate.setText(progress+" k Hz");
+                textVeiwWaveRate.setText(progress+" k Hz");///
             }
 
             @Override
@@ -159,6 +159,7 @@ public class TestFragment extends Fragment {
      * 开始录制音频
      */
     private void startRecording(){
+
         if(audioService !=null){
             audioService.startRecording();
         }
@@ -229,7 +230,7 @@ public class TestFragment extends Fragment {
         public void onClick(View view) {
             switch(view.getId()){
                 case R.id.recorder:
-                    if(((ToggleButton) view).isChecked()==true){
+                    if(((ToggleButton) view).isChecked()){
                         startRecording();
                     }
                     else{
@@ -238,7 +239,7 @@ public class TestFragment extends Fragment {
                     break;
 
                 case R.id.player:
-                    if(((ToggleButton) view).isChecked()==true){
+                    if(((ToggleButton) view).isChecked()){
                         startPlayingAudioFile();
                     }
                     else{
@@ -247,7 +248,7 @@ public class TestFragment extends Fragment {
                     break;
 
                 case R.id.play_and_record:
-                    if(((ToggleButton)view).isChecked()==true){
+                    if(((ToggleButton)view).isChecked()){
                         startPlayingAudioFile();
                         startRecording();
                     }
@@ -258,7 +259,7 @@ public class TestFragment extends Fragment {
                     break;
 
                 case R.id.play_recording_file:
-                    if(((ToggleButton)view).isChecked()==true){
+                    if(((ToggleButton)view).isChecked()){
                         startPlayingRecordingFile();
                     }
                     else{
@@ -267,7 +268,7 @@ public class TestFragment extends Fragment {
                     break;
 
                 case R.id.waveProducer:
-                    if(((ToggleButton)view).isChecked()==true){
+                    if(((ToggleButton)view).isChecked()){
                         startPlayingWave();
                     }
                     else{

@@ -2,12 +2,14 @@ package fruitbasket.com.audioprocessor.record;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;
-import android.media.MediaRecorder.AudioSource;
+import android.media.MediaRecorder;
 import android.util.Log;
 
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -18,130 +20,103 @@ import fruitbasket.com.audioprocessor.DataIOHelper;
  * 录制声音
  */
 public class AudioRecordWrapper {
-    private static final String TAG = AudioRecordWrapper.class.toString();
-    private static final int DEFAULT_BUFFER_INCREASE_FACTOR = 3;
+	private static final String TAG=AudioRecordWrapper.class.toString();
 
-    private AudioRecord recorder;
-    private String audioFileName;
-    private WavHeader wavHeader;
+	private String audioFullName;
+	private WavHeader wavHeader;
+	private boolean isRecording=false;
+	
+	public AudioRecordWrapper(){
+		wavHeader=new WavHeader();
+	}
+	
+	/**
+	 * 开始录制音频
+	 * @return ture 录音完成，false 录音失败
+	 */
+	public boolean startRecording(){
+		return startRecording(Condition.SIMPLE_RATE_CD,AudioFormat.CHANNEL_IN_MONO,AudioFormat.ENCODING_PCM_16BIT);
+	}
 
-    public AudioRecordWrapper() {
-        wavHeader = new WavHeader();
-    }
-
-    /**
-     * 开始录制音频
-     *
+	/**
+	 *
+	 * @param sampleRate 声音的采样频率
+	 * @param channelIn 声道
+	 * @param encoding specific the quantity of bit of each voice frame
      * @return ture 录音完成，false 录音失败
      */
-    public boolean startRecording() {
-        return startRecording(Condition.SIMPLE_RATE_CD, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-    }
+	public boolean startRecording(final int sampleRate,int channelIn,int encoding){
+		audioFullName = DataIOHelper.getRecordedFileName("pcm");
+		File audioFile= new File(audioFullName);
 
-    /**
-     * @param sampleRate : the number of  samples per second
-     * @param encoding:  specific the quantity of bit of each voice frame
-     * @return ture 录音完成，false 录音失败
-     */
-    public boolean startRecording(final int sampleRate, int channelIn, int encoding) {
-        boolean state = false;
-        int bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelIn, encoding);
-        try {
-            state = doRecording(sampleRate, encoding, bufferSize, bufferSize, DEFAULT_BUFFER_INCREASE_FACTOR);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return state;
-    }
+		int bufferSize = AudioRecord.getMinBufferSize(
+				sampleRate,
+				channelIn,
+				encoding);
+		if(bufferSize==AudioRecord.ERROR_BAD_VALUE){
+			Log.e(TAG,"recordingBufferSize==AudioRecord.ERROR_BAD_VALUE");
+			return false;
+		}
+		else if(bufferSize==AudioRecord.ERROR){
+			Log.e(TAG,"recordingBufferSize==AudioRecord.ERROR");
+			return false;
+		}
+		byte[] buffer = new byte[bufferSize];
 
-    /**
-     * @param sampleRate           采样频率
-     * @param encoding             编码格式
-     *                             See {@link AudioFormat#ENCODING_PCM_8BIT}, {@link AudioFormat#ENCODING_PCM_16BIT},
-     * @param recordingBufferSize  the total size (in bytes) of the buffer where audio data is written to during the recording
-     * @param readBufferSize       读取数据的缓冲区的大小（字节数）
-     * @param bufferIncreaseFactor 用于增加缓冲区recordingBufferSize的因子
-     * @return ture 录音完成，false 录音失败
-     * @throws IOException
-     */
-    private boolean doRecording(final int sampleRate, int encoding, int recordingBufferSize, int readBufferSize, int bufferIncreaseFactor) throws IOException {
-        audioFileName = DataIOHelper.getRecordedFileName("wav");
-        File audioFile = new File(audioFileName);
-        //audioFile.createNewFile();
+		try {
+			FileOutputStream output = new FileOutputStream(audioFile);
+			AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
+					sampleRate,
+					channelIn,
+					encoding,
+					bufferSize);
+			audioRecord.startRecording();
 
-        DataOutputStream output = new DataOutputStream(
-                new BufferedOutputStream(
-                        new FileOutputStream(audioFile)
-                )
-        );
+			isRecording = true;
+			while (isRecording) {
+				int readState = audioRecord.read(buffer, 0, bufferSize);
+				if(readState==AudioRecord.ERROR_INVALID_OPERATION){
+					Log.e(TAG,"readState==AudioRecord.ERROR_INVALID_OPERATION");
+					return false;
+				}
+				else if(readState==AudioRecord.ERROR_BAD_VALUE){
+					Log.e(TAG,"readState==AudioRecord.ERROR_BAD_VALUE");
+					return false;
+				}
+				else{
+					output.write(buffer);
+				}
+			}
+			output.close();
+			audioRecord.stop();
+			audioRecord.release();
 
-        if (recordingBufferSize == AudioRecord.ERROR_BAD_VALUE) {
-            Log.e(TAG, "recordingBufferSize==AudioRecord.ERROR_BAD_VALUE");
-            return false;
-        } else if (recordingBufferSize == AudioRecord.ERROR) {
-            Log.e(TAG, "recordingBufferSize==AudioRecord.ERROR");
-            return false;
-        }
-        //give it extra space to prevent overflow
-        int increasedRecordingBufferSize = recordingBufferSize * bufferIncreaseFactor;
-        recorder =
-                new AudioRecord(AudioSource.MIC,
-                        sampleRate,
-                        AudioFormat.CHANNEL_IN_MONO,
-                        encoding,
-                        increasedRecordingBufferSize);
+			FileInputStream inputStream=new FileInputStream(audioFile);
+			FileOutputStream outputStream=new FileOutputStream(audioFullName+".wav");
 
-        final short[] readBuffer = new short[readBufferSize];
+			int length=(int)inputStream.getChannel().size();
+			wavHeader.setAdjustFileLength(length-8);
+			wavHeader.setAudioDataLength(length-44);
+			wavHeader.setBlockAlign(channelIn,encoding);
+			wavHeader.setByteRate(channelIn,sampleRate,encoding);
+			wavHeader.setChannelCount(channelIn);
+			wavHeader.setEncodingBit(encoding);
+			wavHeader.setSampleRate(sampleRate);
+			wavHeader.setWaveFormatPcm(WavHeader.WAV_FORMAT_PCM);
 
-        recorder.startRecording();
+			outputStream.write(wavHeader.getHeader());
+			while (inputStream.read(buffer) != -1) {
+				outputStream.write(buffer);
+			}
+			inputStream.close();
+			outputStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return true;
+	}
 
-        //readState is a state code or the length of readBuffer
-        int readState;
-        while (recorder.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING) {
-            readState = recorder.read(readBuffer, 0, readBufferSize);
-            if (readState == AudioRecord.ERROR_INVALID_OPERATION) {
-                Log.e(TAG, "readState==AudioRecord.ERROR_INVALID_OPERATION");
-            } else if (readState == AudioRecord.ERROR_BAD_VALUE) {
-                Log.e(TAG, "readState==AudioRecord.ERROR_BAD_VALUE");
-            } else {
-                //save the data
-                int i;
-                for (i = 0; i < readState; ++i) {
-                    output.writeShort(readBuffer[i]);
-                }
-            }
-        }
-        recorder.release();
-        recorder = null;
-
-        output.flush();
-        //output.close();
-        //插入wav文件头
-        ///这里应使用wav存储格式
-        //RandomAccessFile accessFile=new RandomAccessFile(audioFile,"rw");
-        //这里的设置要和audioRecord 的设置对应
-        wavHeader.setAdjustFileLength((long) audioFile.length() + 44 - 8);
-        wavHeader.setAudioDataLength((long) audioFile.length());
-        wavHeader.setBlockAlign(AudioFormat.CHANNEL_IN_MONO, encoding);
-        wavHeader.setByteRate(AudioFormat.CHANNEL_IN_MONO, sampleRate, encoding);
-        wavHeader.setChannelCount(AudioFormat.CHANNEL_IN_MONO);
-        wavHeader.setEncodingBit(encoding);
-        wavHeader.setSampleRate(sampleRate);
-        wavHeader.setWaveFormatPcm(WavHeader.WAV_FORMAT_PCM);
-        Log.e(TAG, "without header length = " + audioFile.length());
-        output.write(wavHeader.getHeader(), 0, 44);
-        output.flush();
-        output.close();
-        Log.e(TAG, "with header length = " + audioFile.length());
-        //accessFile.seek(0);
-        //accessFile.write(wavHeader.getHeader());
-        //accessFile.close();
-        return true;
-    }
-
-    public void stopRecoding() {
-        if (recorder != null) {
-            recorder.stop();
-        }
-    }
+	public void stopRecoding(){
+		isRecording = false;
+	}
 }
