@@ -1,5 +1,6 @@
 package fruitbasket.com.audioprocessor.ui;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import fruitbasket.com.audioprocessor.R;
 import fruitbasket.com.audioprocessor.play.SendTextTask;
+import fruitbasket.com.audioprocessor.record.ReceiveTextTask;
 
 /**
  * 利用声波发送文本，并接受该声波并解码为文本显示
@@ -49,8 +51,14 @@ public class SendReceiveFragment extends Fragment {
                 if (TextUtils.isEmpty(s)) {
                     Toast.makeText(getActivity(), "发送文本不能为空", Toast.LENGTH_SHORT).show();
                 }
-                Runnable task = new SendTextTask(s);
-                new Thread(task).start();       //开启子线程发送音频
+                Runnable receiveTask = new ReceiveTextTask();
+                new Thread(receiveTask).start();
+
+                SendTextTask sendTask = new SendTextTask(s);
+                sendTask.execute();
+
+                //Runnable task = new SendTextTask(s);
+                //new Thread(task).start();       //开启子线程发送音频
             }
         });
     }
