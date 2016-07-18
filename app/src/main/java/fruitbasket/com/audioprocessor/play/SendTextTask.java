@@ -41,7 +41,7 @@ public class SendTextTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         try {
-            Thread.sleep(5000);
+            Thread.sleep(100);
             ReceiveTextTask.isRecording = false;
             Log.e(TAG, "play finished!");
         } catch (InterruptedException e) {
@@ -123,7 +123,7 @@ public class SendTextTask extends AsyncTask<Void, Void, Void> {
         short[] sound = new short[msg.length];      //需转成short数组方能播放，由于msg数组值都在0到1之间，乘上相关系数放大
         for (int i = 0; i < msg.length; i++) {
             sound[i] = (short) (msg[i] * Short.MAX_VALUE);
-            Log.e(TAG, i + " " + sound[i]);
+           // Log.e(TAG, i + " " + sound[i]);
         }
 
         final AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,

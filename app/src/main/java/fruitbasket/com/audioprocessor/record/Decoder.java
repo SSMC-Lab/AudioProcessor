@@ -1,6 +1,9 @@
 package fruitbasket.com.audioprocessor.record;
 
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 
 import java.util.Arrays;
 import java.util.Vector;
@@ -11,6 +14,7 @@ import java.util.Vector;
  */
 public class Decoder extends Thread {
     private static final String TAG = Decoder.class.toString();
+    private byte[] preamble = new byte[]{(byte) 0xaf};
 
     private Vector<short[]> byteBuffer = new Vector<>();
     private Handler handler;    //用于向主线程更新界面，显示收到的字符串
@@ -46,7 +50,15 @@ public class Decoder extends Thread {
     @Override
     public void run() {
         while (true) {
+            if (byteBuffer.size() > 0) {
+                Log.e(TAG, "buffer.length = " + byteBuffer.size());
+            }
             handlerByteBuffer(getByteBuffer());
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             if (Thread.interrupted()) {
                 break;
             }
@@ -59,7 +71,14 @@ public class Decoder extends Thread {
      * @param audioData
      */
     private void handlerByteBuffer(short[] audioData) {
+        if (audioData == null) return;
+        for (int i = 0; i < audioData.length; i++) {
+
+            Log.e(TAG, "audioData[" + i + "] = " + audioData[i]);
+
+        }
         if (signalAvailable(audioData)) {
+            Log.e(TAG, "signalAvailable = true");
             int[] nPeaks = processSound(audioData);
             int[] bits = parseBits(nPeaks);
             String str = "";
@@ -81,7 +100,7 @@ public class Decoder extends Thread {
      * @return 根据峰数的数量返回该数据是否可取
      */
     private boolean signalAvailable(short[] audioData) {
-        if (audioData.length == 0) {
+        if (audioData == null || audioData.length == 0) {
             return false;
         }
 
@@ -214,7 +233,65 @@ public class Decoder extends Thread {
         return index-1;*/
     }
 
+    /**
+     * 处理数据
+     *
+     * @param s 由01组成的字符串
+     */
     private void handleData(String s) {
+        String startKey = byteToString(preamble);
+        int pos = s.indexOf(startKey);  //查找开始的标识
+        Log.e(TAG, "pos.length = " + pos);
+        if (pos != -1) {
+            String packetStringWithLength = s.substring(pos + startKey.length());
+            if (packetStringWithLength.length() >= 12 * 8) {          ///不知道是干嘛的？
+                int length = Integer.parseInt(packetStringWithLength.substring(0, 8), 2);       //其中有效信息的长度
+                Log.e(TAG, "msg.length = " + length);
+                String packetString = packetStringWithLength.substring(8, 8 + length * 8);      //二进制的有效信息
+                byte[] packet = StringToBytes(packetString);
+                String msg = new String(packet);
+                Log.e(TAG, "msg = " + msg);
+                Message message = handler.obtainMessage();
+                message.what = 0;
+                Bundle bundle = new Bundle();
+                bundle.putString("msg", msg);
+                message.setData(bundle);
+                handler.sendMessage(message);
+            }
+        }
+    }
 
+    /**
+     * 将string 转成 byte[]
+     *
+     * @param str string
+     * @return byte[]
+     */
+    public byte[] StringToBytes(String str) {
+
+        int len = str.length();
+        int size = (len - len % 8) / 8;
+
+        byte[] bytes = new byte[size];
+
+        for (int i = 0; i < size; i++) {
+            String st = str.substring(i * 8, (i + 1) * 8);
+            bytes[i] = (byte) Integer.parseInt(st, 2);
+        }
+        return bytes;
+    }
+
+    /**
+     * 将byte[] 转成 string
+     *
+     * @param b byte[]
+     * @return string
+     */
+    public String byteToString(byte[] b) {
+        String s = "";
+        for (int j = 0; j < b.length; j++) {
+            s = s + String.format("%8s", Integer.toBinaryString(b[j] & 0xFF)).replace(' ', '0');
+        }
+        return s;
     }
 }

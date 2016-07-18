@@ -2,6 +2,8 @@ package fruitbasket.com.audioprocessor.ui;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -25,12 +27,25 @@ public class SendReceiveFragment extends Fragment {
     private EditText sendEt;    //发送输入文本框
     private Button sendBtn;     //发送按钮
     private TextView receiveTv; //接收文本框
+    private Thread listenerThread;
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == 0) {
+                receiveTv.setText(msg.getData().getString("msg"));
+            } else {
+                receiveTv.setText("error");
+            }
+        }
+    };
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.send_receive_fragment, container, false);
         init(view);
+        listenerThread = new ReceiveTextTask(handler);
+        listenerThread.start();
         return view;
     }
 
@@ -51,8 +66,11 @@ public class SendReceiveFragment extends Fragment {
                 if (TextUtils.isEmpty(s)) {
                     Toast.makeText(getActivity(), "发送文本不能为空", Toast.LENGTH_SHORT).show();
                 }
-                Runnable receiveTask = new ReceiveTextTask();
-                new Thread(receiveTask).start();
+                //Runnable receiveTask = new ReceiveTextTask();
+                //new Thread(receiveTask).start();
+
+                //listenerThread = new ReceiveTextTask(handler);
+                //listenerThread.start();
 
                 SendTextTask sendTask = new SendTextTask(s);
                 sendTask.execute();
