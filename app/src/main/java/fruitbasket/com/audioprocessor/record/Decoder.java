@@ -14,7 +14,7 @@ import java.util.Vector;
  */
 public class Decoder extends Thread {
     private static final String TAG = Decoder.class.toString();
-    private byte[] preamble = new byte[]{(byte) 0xaf};
+    private byte[] preamble = new byte[]{(byte) 0xaf};      //每段有效文本的第一个标志
 
     private Vector<short[]> byteBuffer = new Vector<>();
     private Handler handler;    //用于向主线程更新界面，显示收到的字符串
@@ -41,7 +41,7 @@ public class Decoder extends Thread {
      */
     public synchronized short[] getByteBuffer() {
         if (byteBuffer.size() > 0) {
-            return this.byteBuffer.remove(0);
+            return this.byteBuffer.remove(0);   //返回且移除第一段
         } else {
             return null;
         }
@@ -49,10 +49,7 @@ public class Decoder extends Thread {
 
     @Override
     public void run() {
-        while (true) {
-            if (byteBuffer.size() > 0) {
-                Log.e(TAG, "buffer.length = " + byteBuffer.size());
-            }
+        while (true) {      ///需要响应处理让它停止。
             handlerByteBuffer(getByteBuffer());
             try {
                 Thread.sleep(1000);
@@ -73,9 +70,7 @@ public class Decoder extends Thread {
     private void handlerByteBuffer(short[] audioData) {
         if (audioData == null) return;
         for (int i = 0; i < audioData.length; i++) {
-
             Log.e(TAG, "audioData[" + i + "] = " + audioData[i]);
-
         }
         if (signalAvailable(audioData)) {
             Log.e(TAG, "signalAvailable = true");
@@ -159,7 +154,7 @@ public class Decoder extends Thread {
         int index = startIndex;
         do {
             short value = audioData[index];
-            if (Math.abs(value) > 12000) maxCount++;
+            if (Math.abs(value) > 12000) maxCount++;        ///发出的峰值为Short.MaxValue，需取一适中的值作为峰值的判定
             if (sign == 0 && maxCount > 0) sign = value / Math.abs(value);
             boolean signChange = false;
             if (sign > 0 && value < 0) signChange = true;
@@ -223,14 +218,6 @@ public class Decoder extends Thread {
             value = peaks[index++];
         }
         return index;
-
-        /*int index = startIndex;
-        int value = 1;
-        do {
-            value = peaks[index];
-            index++;
-        } while (value==0 && index<peaks.length-1);
-        return index-1;*/
     }
 
     /**

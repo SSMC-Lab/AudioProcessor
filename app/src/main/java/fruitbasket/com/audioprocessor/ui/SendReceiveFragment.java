@@ -1,6 +1,5 @@
 package fruitbasket.com.audioprocessor.ui;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -44,7 +43,7 @@ public class SendReceiveFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.send_receive_fragment, container, false);
         init(view);
-        listenerThread = new ReceiveTextTask(handler);
+        listenerThread = new ReceiveTextTask(handler);          //开启接收音频
         listenerThread.start();
         return view;
     }
@@ -66,17 +65,11 @@ public class SendReceiveFragment extends Fragment {
                 if (TextUtils.isEmpty(s)) {
                     Toast.makeText(getActivity(), "发送文本不能为空", Toast.LENGTH_SHORT).show();
                 }
-                //Runnable receiveTask = new ReceiveTextTask();
-                //new Thread(receiveTask).start();
-
                 //listenerThread = new ReceiveTextTask(handler);
                 //listenerThread.start();
 
                 SendTextTask sendTask = new SendTextTask(s);
                 sendTask.execute();
-
-                //Runnable task = new SendTextTask(s);
-                //new Thread(task).start();       //开启子线程发送音频
             }
         });
     }

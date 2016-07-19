@@ -17,19 +17,18 @@ public class ReceiveTextTask extends Thread {
     //private int channelConfiguration = AudioFormat.CHANNEL_IN_STEREO;   //双声道
     private int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;  //音频编码
     public static boolean isRecording = false;    //是否正在录制
-    private Handler handler;
+    private Handler handler;        //用于更新界面的UI
     private Decoder decoder;
 
     public ReceiveTextTask(Handler handler) {
         this.handler = handler;
+        decoder = new Decoder(handler);       //解码收听到的数字音频
+        decoder.start();
     }
 
     @Override
     public void run() {
         Log.e(TAG, "start!");
-
-        decoder = new Decoder(this.handler);
-        decoder.start();
 
         //取得最小缓存区
         int bufferSize = AudioRecord.getMinBufferSize(frequency,    //采样频率
@@ -53,9 +52,6 @@ public class ReceiveTextTask extends Thread {
             Log.e(TAG, "recording!");
             /*for (int i = 0; i < bufferReadResult; i++) {
                 Log.e(TAG, "buffer." + i + "= " + buffer[i]);
-            }*/
-            /*for (int i = 0; i < bufferReadResult; i++) {
-                  dos.writeShort(buffer[i]);
             }*/
         }
     }
