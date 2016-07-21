@@ -5,15 +5,13 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.util.Log;
 
-import java.io.BufferedOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import fruitbasket.com.audioprocessor.Condition;
+import fruitbasket.com.audioprocessor.AppCondition;
 import fruitbasket.com.audioprocessor.DataIOHelper;
 
 /**
@@ -35,7 +33,7 @@ public class AudioRecordWrapper {
 	 * @return ture 录音完成，false 录音失败
 	 */
 	public boolean startRecording(){
-		return startRecording(Condition.SIMPLE_RATE_CD,AudioFormat.CHANNEL_IN_MONO,AudioFormat.ENCODING_PCM_16BIT);
+		return startRecording(AppCondition.SIMPLE_RATE_CD,AudioFormat.CHANNEL_IN_MONO,AudioFormat.ENCODING_PCM_16BIT);
 	}
 
 	/**
@@ -65,7 +63,8 @@ public class AudioRecordWrapper {
 
 		try {
 			FileOutputStream output = new FileOutputStream(audioFile);
-			AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
+			AudioRecord audioRecord = new AudioRecord(
+					MediaRecorder.AudioSource.MIC,
 					sampleRate,
 					channelIn,
 					encoding,

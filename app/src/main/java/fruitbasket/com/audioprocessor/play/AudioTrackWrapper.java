@@ -11,7 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import fruitbasket.com.audioprocessor.Condition;
+import fruitbasket.com.audioprocessor.AppCondition;
 import fruitbasket.com.audioprocessor.waveProducer.WaveProducer;
 import fruitbasket.com.audioprocessor.waveProducer.WaveType;
 
@@ -44,17 +44,13 @@ public class AudioTrackWrapper {
 		}
 	}
 
-    /**
-     * 播放一个pcm音频文件，这个音频文件使用16位的编码
-     * @param audioPath the full path and the name of the audio file
-     */
     public void startPlaying(String audioPath){
-        startPlaying(audioPath, Condition.SIMPLE_RATE_CD);
+        startPlaying(audioPath, AppCondition.SIMPLE_RATE_CD);
     }
 
 	/**
-	 *
-	 * @param audioPath
+	 *	播放一个pcm音频文件，这个音频文件使用16位的编码
+	 * @param audioPath the full path and the name of the audio file
 	 * @param sampleRate 设备实际的发声频率
 	 */
 	public void startPlaying(String audioPath,int sampleRate){
@@ -82,20 +78,7 @@ public class AudioTrackWrapper {
 					audioLength,
 					AudioTrack.MODE_STREAM);
 
-			if(audioOutConfig!=null){
-				switch(audioOutConfig.getChannelOut()){
-					case AudioOutConfig.CHANNEL_OUT_LEFT:
-						audioTrack.setStereoVolume(0.5f,0.0f);
-						break;
-					case AudioOutConfig.CHANNEL_OUT_RIGHT:
-						audioTrack.setStereoVolume(0.0f,0.5f);
-						break;
-					case AudioOutConfig.CHANNEL_OUT_BOTH:
-						audioTrack.setStereoVolume(0.5f,0.5f);
-						break;
-				}
-			}
-
+			adjustVolume();
 			audioTrack.play();
 			audioTrack.write(audio, 0, audioLength);
 			releaseResource();
@@ -104,53 +87,16 @@ public class AudioTrackWrapper {
 		}
 	}
 
-    /**
-     *播放声波
-     * @param wave
+    public void startPlaying(final WaveType waveType,final int waveRate){
+        startPlaying(waveType,waveRate, AppCondition.SIMPLE_RATE_CD);
+    }
+
+	/**
+	 * 播放一段声波
+	 * @param waveType 声波的类型
+	 * @param waveRate 声波的频率
+	 * @param sampleRate 设备实际的发声频率
      */
-    public void startPlaying(short[] wave){
-        startPlaying(wave,Condition.SIMPLE_RATE_CD);
-    }
-
-    /**
-     *这个函数播放声音会出问题///
-     * @param wave
-     * @param sampleRate 设备播放声音的频率
-     */
-    public void startPlaying(short[] wave,int sampleRate){
-        Log.i(TAG,"startPlaying(wave,sampleRate)");
-
-        audioTrack = new AudioTrack(
-                AudioManager.STREAM_MUSIC,
-                sampleRate,
-                AudioFormat.CHANNEL_OUT_MONO,
-                AudioFormat.ENCODING_PCM_16BIT,
-                wave.length*2,
-                AudioTrack.MODE_STATIC);
-
-        if(audioOutConfig!=null) {
-            switch (audioOutConfig.getChannelOut()) {
-                case AudioOutConfig.CHANNEL_OUT_LEFT:
-                    audioTrack.setStereoVolume(0.5f, 0.0f);
-                    break;
-                case AudioOutConfig.CHANNEL_OUT_RIGHT:
-                    audioTrack.setStereoVolume(0.0f, 0.5f);
-                    break;
-                case AudioOutConfig.CHANNEL_OUT_BOTH:
-                    audioTrack.setStereoVolume(0.5f, 0.5f);
-                    break;
-            }
-        }
-
-        audioTrack.write(wave,0,wave.length);
-        audioTrack.setLoopPoints(0,wave.length,-1);
-        audioTrack.play();
-    }
-
-    public void startPlaying(WaveType waveType,int waveRate){
-        this.startPlaying(waveType,waveRate,Condition.SIMPLE_RATE_CD);
-    }
-
     public void startPlaying(final WaveType waveType, final int waveRate, final int sampleRate){
         final int bufferSize = AudioTrack.getMinBufferSize(
                 sampleRate,
@@ -159,25 +105,13 @@ public class AudioTrackWrapper {
 
         audioTrack=new AudioTrack(
                 AudioManager.STREAM_MUSIC,
-                44100,
+				sampleRate,
                 AudioFormat.CHANNEL_OUT_MONO,
                 AudioFormat.ENCODING_PCM_16BIT,
                 bufferSize,
                 AudioTrack.MODE_STREAM);
 
-        if(audioOutConfig!=null) {
-            switch (audioOutConfig.getChannelOut()) {
-                case AudioOutConfig.CHANNEL_OUT_LEFT:
-                    audioTrack.setStereoVolume(0.5f, 0.0f);
-                    break;
-                case AudioOutConfig.CHANNEL_OUT_RIGHT:
-                    audioTrack.setStereoVolume(0.0f, 0.5f);
-                    break;
-                case AudioOutConfig.CHANNEL_OUT_BOTH:
-                    audioTrack.setStereoVolume(0.5f, 0.5f);
-                    break;
-            }
-        }
+		adjustVolume();
         audioTrack.play();
 
         new Thread(new Runnable() {
@@ -202,6 +136,22 @@ public class AudioTrackWrapper {
 		if(audioTrack !=null){
 			audioTrack.release();
 			audioTrack =null;
+		}
+	}
+
+	private void adjustVolume(){
+		if(audioOutConfig!=null) {
+			switch (audioOutConfig.getChannelOut()) {
+				case AudioOutConfig.CHANNEL_OUT_LEFT:
+					audioTrack.setStereoVolume(0.5f, 0.0f);
+					break;
+				case AudioOutConfig.CHANNEL_OUT_RIGHT:
+					audioTrack.setStereoVolume(0.0f, 0.5f);
+					break;
+				case AudioOutConfig.CHANNEL_OUT_BOTH:
+					audioTrack.setStereoVolume(0.5f, 0.5f);
+					break;
+			}
 		}
 	}
 }

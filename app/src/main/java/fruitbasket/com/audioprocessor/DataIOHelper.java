@@ -16,6 +16,6 @@ final public class DataIOHelper {
 	 * @return  the file name
 	 */
 	public static String getRecordedFileName(String extensionName){
-		return Condition.APP_FILE_DIR+File.separator+DateHelper.getCurrentTime()+"."+extensionName;
+		return AppCondition.APP_FILE_DIR+File.separator+System.currentTimeMillis()+"."+extensionName;
 	}
 }

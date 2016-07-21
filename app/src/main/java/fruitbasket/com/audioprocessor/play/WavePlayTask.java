@@ -2,8 +2,7 @@ package fruitbasket.com.audioprocessor.play;
 
 import android.util.Log;
 
-import fruitbasket.com.audioprocessor.Condition;
-import fruitbasket.com.audioprocessor.waveProducer.WaveProducer;
+import fruitbasket.com.audioprocessor.AppCondition;
 import fruitbasket.com.audioprocessor.waveProducer.WaveType;
 
 /**
@@ -19,7 +18,7 @@ public class WavePlayTask implements Runnable {
     private int sampleRate;//设备实际发出声音的频率
 
     public WavePlayTask(WaveType waveType,int waveRate){
-        this(waveType,waveRate,Condition.SIMPLE_RATE_CD);
+        this(waveType,waveRate, AppCondition.SIMPLE_RATE_CD);
     }
 
     public WavePlayTask(WaveType waveType,int waveRate,int sampleRate){

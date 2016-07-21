@@ -7,9 +7,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
-import java.io.File;
-
-import fruitbasket.com.audioprocessor.Condition;
 import fruitbasket.com.audioprocessor.R;
 
 public class MainActivity extends AppCompatActivity {
@@ -32,15 +29,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //创建app根目录
-        File appDirectroy = new File(Condition.APP_FILE_DIR);
-        appDirectroy.mkdirs();
-
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
