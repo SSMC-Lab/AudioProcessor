@@ -30,7 +30,7 @@ public class CardViewAdapter
     {
         String content = list.get(i);
         Log.d("Liar",content);
-        viewHolder.textView.setText(content);
+        viewHolder.textView1.setText(content);
     }
 
     @Override
@@ -39,10 +39,12 @@ public class CardViewAdapter
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
-        public TextView textView;
+        public TextView textView1;
+        public TextView textView2;
         public ViewHolder(View v) {
             super(v);
-            textView = (TextView) v.findViewById(R.id.card_content);
+            textView1 = (TextView) v.findViewById(R.id.card_content1);
+            textView2 = (TextView) v.findViewById(R.id.card_content2);
         }
     }
 }
