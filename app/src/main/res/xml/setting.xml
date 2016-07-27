@@ -23,7 +23,7 @@
         android:dialogTitle="频率"
         android:key="HZ"
         android:title="频率"
-        example:maxValue="65000"
+        example:maxValue="20"
         example:minValue="0"/>
     <Preference
         android:key="RESET"

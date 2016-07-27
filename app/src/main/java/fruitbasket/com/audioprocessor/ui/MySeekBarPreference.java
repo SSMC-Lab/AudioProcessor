@@ -64,9 +64,9 @@ public class MySeekBarPreference extends DialogPreference implements
 
         // Put minimum and maximum
         ((TextView) view.findViewById(R.id.dialog_MIN)).setText(Integer
-                .toString(mMinValue));
+                .toString(mMinValue)+"kHZ");
         ((TextView) view.findViewById(R.id.dialog_MAX)).setText(Integer
-                .toString(mMaxValue));
+                .toString(mMaxValue)+"kHZ");
 
         // Setup SeekBar
         mSeekBar = (SeekBar) view.findViewById(R.id.dialog_seek);
@@ -76,7 +76,7 @@ public class MySeekBarPreference extends DialogPreference implements
 
         // Put current value
         mValueText = (TextView) view.findViewById(R.id.dialog_NOW);
-        mValueText.setText(Integer.toString(mCurrentValue));
+        mValueText.setText(Integer.toString(mCurrentValue)+"kHZ");
 
         builder.setView(view).setPositiveButton("确定",new DialogInterface.OnClickListener() {
             @Override
@@ -98,7 +98,7 @@ public class MySeekBarPreference extends DialogPreference implements
                                   boolean fromUser) {
         // TODO Auto-generated method stub
         mCurrentValue = progress + mMinValue;
-        mValueText.setText(Integer.toString(mCurrentValue));
+        mValueText.setText(Integer.toString(mCurrentValue)+"kHZ");
     }
 
     @Override

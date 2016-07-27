@@ -21,68 +21,106 @@
             app:popupTheme="@style/AppTheme.PopupOverlay"
             />
     </android.support.design.widget.AppBarLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        >
-        <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/main_swipe_refresh"
+    <RelativeLayout
+            android:background="#e8e8e8"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:orientation="vertical"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
-            <RelativeLayout
-                android:background="#e8e8e8"
+            <LinearLayout
+                android:background="#B6B6B6"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/main_list"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:background="#e8e8e8"
-                        tools:context=".ui.MainFragment"
-                        >
-                    </android.support.v7.widget.RecyclerView>
+                android:orientation="vertical">
 
-                    <LinearLayout
-                        android:layout_alignParentBottom="true"
-                        android:background="#fff"
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/main_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:background="#e8e8e8"
+                    tools:context=".ui.MainFragment"
+                    >
+                </android.support.v7.widget.RecyclerView>
+
+                <RelativeLayout
+                    android:layout_marginTop="2px"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:background="#fff" >
+
+                    <ImageView
+                        android:id="@+id/main_type_change"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="10dip"
+                        android:src="@drawable/ic_voice" />
+
+                    <RelativeLayout
+                        android:id="@+id/main_word"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_toRightOf="@+id/main_type_change" >
+
                         <Button
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="3"
-                            android:background="@drawable/ic_folder_n"
-                            android:id="@+id/main_file_bottom"/>
+                            android:id="@+id/main_send"
+                            android:layout_width="60dp"
+                            android:layout_marginTop="2dp"
+                            android:layout_marginBottom="2dp"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="10dp"
+                            android:background="@drawable/botton_style"
+                            android:textColor="#388E3C"
+                            android:text="发送" />
+
                         <EditText
-                            android:textColor="#000"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="14"
-                            android:id="@+id/main_text"/>
-                        <Button
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="4"
-                            android:background="#1889ee"
-                            android:textColor="#fff"
-                            android:text="发送"
-                            android:id="@+id/main_send"/>
-                    </LinearLayout>
-                </LinearLayout>
-            </RelativeLayout>
-        </android.support.v4.widget.SwipeRefreshLayout>
+                            android:id="@+id/main_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:layout_toLeftOf="@id/main_send"
+                            android:singleLine="true"
+                            android:textSize="18sp" />
+                    </RelativeLayout>
 
-    </LinearLayout>
+                    <Button
+                        android:id="@+id/main_voice"
+                        android:background="@drawable/botton_style"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="2dp"
+                        android:layout_marginLeft="15dp"
+                        android:layout_marginRight="15dp"
+                        android:layout_toRightOf="@+id/main_type_change"
+                        android:gravity="center"
+                        android:text="播放音频"
+                        android:visibility="gone" />
+                </RelativeLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/main_popup"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:visibility="gone" >
 
+                <include
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    layout="@layout/popup_window" />
+            </LinearLayout>
+        </RelativeLayout>
 </LinearLayout>

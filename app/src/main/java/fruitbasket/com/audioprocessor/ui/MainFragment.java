@@ -1,5 +1,6 @@
 package fruitbasket.com.audioprocessor.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,10 +15,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuInflater;
+import android.view.inputmethod.InputMethodManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,15 +33,19 @@ import fruitbasket.com.audioprocessor.R;
  * Created by Study on 21/06/2016.
  */
 public class MainFragment extends Fragment
-        implements  SwipeRefreshLayout.OnRefreshListener , View.OnClickListener{
+        implements  View.OnClickListener{
     private Toolbar toolbar;
     private Button send;
-    private Button file;
+    private ImageView type_change;
     private EditText edit_text;
     private RecyclerView mRecyclerView;
     private List<String> Content_List=new ArrayList<>();
     private CardViewAdapter myAdapter;
-    private SwipeRefreshLayout swipeLayout;
+    private RelativeLayout main_word;
+    private Button main_voice;
+    private LinearLayout pop_up;
+    private boolean type_voice=false;
+    private boolean pop_up_now=false;
 
     public MainFragment(){}
 
@@ -48,10 +57,17 @@ public class MainFragment extends Fragment
         send = (Button) rootView.findViewById(R.id.main_send);
         send.setOnClickListener(this);
 
-        file = (Button) rootView.findViewById(R.id.main_file_bottom);
-        file.setOnClickListener(this);
+        type_change = (ImageView) rootView.findViewById(R.id.main_type_change);
+        type_change.setOnClickListener(this);
 
         edit_text = (EditText) rootView.findViewById(R.id.main_text);
+
+        main_word = (RelativeLayout) rootView.findViewById(R.id.main_word);
+
+        pop_up = (LinearLayout) rootView.findViewById(R.id.main_popup);
+
+        main_voice = (Button) rootView.findViewById(R.id.main_voice);
+        main_voice.setOnClickListener(this);
 
         toolbar = (Toolbar) rootView.findViewById(R.id.main_toolbar);
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
@@ -68,8 +84,6 @@ public class MainFragment extends Fragment
         // 为mRecyclerView设置适配器
         mRecyclerView.setAdapter(myAdapter);
 
-        swipeLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.main_swipe_refresh);
-        swipeLayout.setOnRefreshListener(MainFragment.this);
         return rootView;
     }
 
@@ -93,15 +107,48 @@ public class MainFragment extends Fragment
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.main_send : Toast.makeText(this.getContext(),"send",Toast.LENGTH_SHORT).show();Content_List.add("test");
-                myAdapter.notifyDataSetChanged();break;
-            case R.id.main_file_bottom :break;
+            case R.id.main_send : SendMsg();break;
+            case R.id.main_type_change :Type_change();break;
+            case R.id.main_voice:solve_pop();break;
         }
     }
 
-    public void onRefresh() {
-        //DO SOMETHING
-        Toast.makeText(this.getContext(),"refresh",Toast.LENGTH_SHORT).show();
-        swipeLayout.setRefreshing(false);
+
+    private void Type_change() {
+        if(type_voice==false) {
+            main_word.setVisibility(View.GONE);
+            main_voice.setVisibility(View.VISIBLE);
+            type_voice = true;
+            type_change.setImageResource(R.drawable.ic_word);
+        } else {
+            main_word.setVisibility(View.VISIBLE);
+            main_voice.setVisibility(View.GONE);
+            type_voice = false;
+            type_change.setImageResource(R.drawable.ic_voice);
+        }
+    }
+
+    private void SendMsg() {
+            String get_str=edit_text.getText().toString();
+            if(get_str.length()>0) {
+                Content_List.add(get_str);
+                myAdapter.notifyDataSetChanged();
+                edit_text.setText("");
+                InputMethodManager imm = (InputMethodManager)
+                        getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+        }
+    }
+
+    private void solve_pop() {
+        if(pop_up_now == false) {
+            main_voice.setText("暂停播放");
+            pop_up.setVisibility(View.VISIBLE);
+            pop_up_now = true;
+        } else {
+            main_voice.setText("播放音频");
+            pop_up.setVisibility(View.GONE);
+            pop_up_now = false;
+        }
     }
 }
