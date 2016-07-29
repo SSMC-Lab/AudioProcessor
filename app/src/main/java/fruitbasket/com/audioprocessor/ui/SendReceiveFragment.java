@@ -43,8 +43,8 @@ public class SendReceiveFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.send_receive_fragment, container, false);
         init(view);
-        listenerThread = new ReceiveTextTask(handler);          //开启接收音频
-        listenerThread.start();
+        //listenerThread = new ReceiveTextTask(handler);          //开启接收音频
+        //listenerThread.start();
         return view;
     }
 

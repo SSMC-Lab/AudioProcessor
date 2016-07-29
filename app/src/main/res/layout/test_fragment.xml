@@ -52,7 +52,7 @@
             android:text="@string/wave_producer"/>
 
         <ToggleButton
-            android:id="@+id/waveProducer"
+            android:id="@+id/wave_producer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
@@ -70,5 +70,19 @@
         android:max="20"
         android:progress="19"
         />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="send text"/>
+
+        <ToggleButton
+            android:id="@+id/send_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
 </LinearLayout>

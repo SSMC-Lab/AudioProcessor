@@ -45,7 +45,7 @@ public class AudioTrackWrapper {
 	}
 
     public void startPlaying(String audioPath){
-        startPlaying(audioPath, AppCondition.SIMPLE_RATE_CD);
+        startPlaying(audioPath, AppCondition.DEFAULE_SIMPLE_RATE);
     }
 
 	/**
@@ -88,7 +88,7 @@ public class AudioTrackWrapper {
 	}
 
     public void startPlaying(final WaveType waveType,final int waveRate){
-        startPlaying(waveType,waveRate, AppCondition.SIMPLE_RATE_CD);
+        startPlaying(waveType,waveRate, AppCondition.DEFAULE_SIMPLE_RATE);
     }
 
 	/**

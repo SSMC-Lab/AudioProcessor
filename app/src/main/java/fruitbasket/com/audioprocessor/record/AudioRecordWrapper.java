@@ -33,7 +33,7 @@ public class AudioRecordWrapper {
 	 * @return ture 录音完成，false 录音失败
 	 */
 	public boolean startRecording(){
-		return startRecording(AppCondition.SIMPLE_RATE_CD,AudioFormat.CHANNEL_IN_MONO,AudioFormat.ENCODING_PCM_16BIT);
+		return startRecording(AppCondition.DEFAULE_SIMPLE_RATE,AudioFormat.CHANNEL_IN_MONO,AudioFormat.ENCODING_PCM_16BIT);
 	}
 
 	/**

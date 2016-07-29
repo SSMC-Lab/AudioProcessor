@@ -18,7 +18,7 @@ public class WavePlayTask implements Runnable {
     private int sampleRate;//设备实际发出声音的频率
 
     public WavePlayTask(WaveType waveType,int waveRate){
-        this(waveType,waveRate, AppCondition.SIMPLE_RATE_CD);
+        this(waveType,waveRate, AppCondition.DEFAULE_SIMPLE_RATE);
     }
 
     public WavePlayTask(WaveType waveType,int waveRate,int sampleRate){

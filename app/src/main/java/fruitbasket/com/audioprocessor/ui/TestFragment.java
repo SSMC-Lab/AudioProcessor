@@ -26,12 +26,13 @@ import fruitbasket.com.audioprocessor.waveProducer.WaveType;
  * Created by Study on 21/06/2016.
  */
 public class TestFragment extends Fragment {
-    private static final String TAG=TestFragment.class.toString();
+    private static final String TAG="ui.TestFragment";
 
     private RadioGroup channelOut;
     private ToggleButton waveProducer;
     private SeekBar seekbarWaveRate;
     private TextView textVeiwWaveRate;
+    private ToggleButton sendText;
 
     private int waveRate;
 
@@ -105,7 +106,7 @@ public class TestFragment extends Fragment {
             }
         });
 
-        waveProducer =(ToggleButton)view.findViewById(R.id.waveProducer);
+        waveProducer =(ToggleButton)view.findViewById(R.id.wave_producer);
         waveProducer.setOnClickListener(listener);
 
         textVeiwWaveRate =(TextView)view.findViewById(R.id.text_view_waverate);
@@ -130,12 +131,15 @@ public class TestFragment extends Fragment {
         });
         waveRate = seekbarWaveRate.getProgress()*1000;
         textVeiwWaveRate.setText(getResources().getString(R.string.frequency,seekbarWaveRate.getProgress()));
+
+        sendText=(ToggleButton)view.findViewById(R.id.send_text);
+        sendText.setOnClickListener(listener);
     }
 
 
     private void startPlayingWave(){
         if(audioService!=null){
-            audioService.startPlayingWave(WaveType.SIN, waveRate, AppCondition.SIMPLE_RATE_CD);
+            audioService.startPlayingWave(WaveType.SIN, waveRate, AppCondition.DEFAULE_SIMPLE_RATE);
         }
     }
 
@@ -145,18 +149,41 @@ public class TestFragment extends Fragment {
         }
     }
 
+    private void startSendingText(){
+        Log.i(TAG,"startSendingText()");
+        if(audioService!=null){
+            audioService.startSendingText();
+        }
+    }
+
+    private void stopSendingText(){
+        Log.i(TAG,"stopSendingText()");
+        if(audioService!=null){
+            audioService.stopSendingText();
+        }
+    }
+
 
     private class ToggleClickListener implements View.OnClickListener {
 
         @Override
         public void onClick(View view) {
             switch(view.getId()){
-                case R.id.waveProducer:
+                case R.id.wave_producer:
                     if(((ToggleButton)view).isChecked()){
                         startPlayingWave();
                     }
                     else{
                         stopPlayingWave();
+                    }
+                    break;
+
+                case R.id.send_text:
+                    if(((ToggleButton)view).isChecked()){
+                        startSendingText();
+                    }
+                    else{
+                        stopSendingText();
                     }
             }
         }

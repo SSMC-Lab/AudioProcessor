@@ -8,10 +8,6 @@ import android.util.Log;
 
 import fruitbasket.com.audioprocessor.record.ReceiveTextTask;
 
-/**
- * 以音频的方式发送一段文本
- * Created by wbin on 2016/7/5.
- */
 public class SendTextTask extends AsyncTask<Void, Void, Void> {
     private static final String TAG = SendTextTask.class.toString();
     private String s;   //要发送的文本
@@ -19,7 +15,6 @@ public class SendTextTask extends AsyncTask<Void, Void, Void> {
     public SendTextTask() {
         s = "nothing";
     }
-
 
     public SendTextTask(String s) {
         this.s = s;
