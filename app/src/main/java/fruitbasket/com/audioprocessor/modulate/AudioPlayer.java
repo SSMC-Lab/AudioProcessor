@@ -11,8 +11,8 @@ import fruitbasket.com.audioprocessor.AppCondition;
 /**
  * 用于播放音频信息
  */
-public class VoicePlayer {
-    private static final String TAG="modulate.VoicePlayer";
+public class AudioPlayer {
+    private static final String TAG="modulate.AudioPlayer";
 
     private AudioTrack audioTrack;
 
@@ -62,7 +62,7 @@ public class VoicePlayer {
                            audioTrack.write(data[i],0,data[i].length);
                        }
                        audioTrack.write(new byte[44100],0,44100);///增加一段空白的音频数据，用作播放间隔，这是一个很不好的做法
-                   }while(isRepeat&&
+                   }while(isRepeat&&///isRepeat的使用似乎存在问题
                            audioTrack.getPlayState()==AudioTrack.PLAYSTATE_PLAYING);
                    audioTrack.flush();
                }
@@ -78,7 +78,7 @@ public class VoicePlayer {
     }
 
     /**
-     * 释放资源。当VoicePlayer不再使用时，应当调用此方法以释放资源
+     * 释放资源。当AudioPlayer不再使用时，应当调用此方法以释放资源
      */
     public void releaseResource(){
         if(audioTrack !=null){

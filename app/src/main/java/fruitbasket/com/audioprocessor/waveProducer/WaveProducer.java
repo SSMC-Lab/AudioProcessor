@@ -2,7 +2,7 @@ package fruitbasket.com.audioprocessor.waveProducer;
 
 final public class WaveProducer {
 	private static final String TAG=WaveProducer.class.toString();
-	private static final WaveProducer WAVE_PRODUCER =new WaveProducer();
+	private static final WaveProducer waveProducer =new WaveProducer();
 
 	private static final int DEDAULT_SAMPLE_COUNT =10000; //生成的波的样本数量
 	private static final short WAVE_RANGE=Short.MAX_VALUE;
@@ -10,8 +10,8 @@ final public class WaveProducer {
 
 	private WaveProducer(){}
 	
-	public WaveProducer getInstance(){
-		return WAVE_PRODUCER;
+	public static WaveProducer getInstance(){
+		return waveProducer;
 	}
 
 	/**
@@ -40,7 +40,7 @@ final public class WaveProducer {
      */
 	public static short[] getSinWave(int waveRate,int sampleRate,int sampleCount){
 		short[] wave=new short[sampleCount];
-		double sampleCountInWave=sampleRate /(double)waveRate;
+		double sampleCountInWave=sampleRate /(double)waveRate;//每一个Sin波中，包含的样本点数量
 		for(int i=0;i<wave.length;++i){
 			wave[i]=(short) (WAVE_RANGE*
 					Math.sin(2.0 * Math.PI * i / (sampleCountInWave))

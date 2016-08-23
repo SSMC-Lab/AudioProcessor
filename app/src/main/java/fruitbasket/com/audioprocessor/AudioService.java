@@ -6,7 +6,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import fruitbasket.com.audioprocessor.modulate.VoicePlayer;
+import fruitbasket.com.audioprocessor.modulate.AudioPlayer;
 import fruitbasket.com.audioprocessor.play.AudioOutConfig;
 import fruitbasket.com.audioprocessor.play.WavePlayTask;
 import fruitbasket.com.audioprocessor.waveProducer.WaveType;
@@ -24,7 +24,7 @@ public class AudioService extends Service {
 	private Thread wavePlayThread;
 	private WavePlayTask wavePlayTask;
 
-	private VoicePlayer voicePlayer;
+	private AudioPlayer audioPlayer;
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -45,8 +45,8 @@ public class AudioService extends Service {
 		stopPlayingWave();
 		stopSendingText();
 
-		if(voicePlayer!=null){
-			voicePlayer.releaseResource();
+		if(audioPlayer !=null){
+			audioPlayer.releaseResource();
 		}
 		super.onDestroy();
 	}
@@ -66,16 +66,16 @@ public class AudioService extends Service {
 
 	public void startSendingText(){
 		Log.i(TAG,"startSendingText()");
-		if(voicePlayer==null){
-			voicePlayer=new VoicePlayer();
+		if(audioPlayer ==null){
+			audioPlayer =new AudioPlayer();
 		}
-        voicePlayer.play("12345",true,1000);
+        audioPlayer.play("12345",true,1000);
 	}
 
 	public void stopSendingText(){
 		Log.i(TAG,"stopSendingText()");
-		if(voicePlayer!=null){
-			voicePlayer.stopPlaying();
+		if(audioPlayer !=null){
+			audioPlayer.stopPlaying();
 		}
 	}
 

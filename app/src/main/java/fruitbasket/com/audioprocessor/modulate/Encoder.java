@@ -10,7 +10,7 @@ import fruitbasket.com.audioprocessor.waveProducer.WaveProducer;
 
 /**
  * 将文本编码成一段声音信号
- * 这里这种编码方法：将不同的字符分配不同的声音频率。具体是，先将不同的字符分配不同的编码，然后将不同的编码分配不同的声波频率
+ * 编码方法：将不同的字符分配不同的声音频率。具体是，先将不同的字符分配不同的编码，然后将不同的编码分配不同的声波频率
  */
 public class Encoder {
     private static final String TAG="modulate.Encoder";
