@@ -6,9 +6,10 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import fruitbasket.com.audioprocessor.modulate.AudioPlayer;
+import fruitbasket.com.audioprocessor.modulate.MessageAudioPlayer;
 import fruitbasket.com.audioprocessor.play.AudioOutConfig;
 import fruitbasket.com.audioprocessor.play.WavePlayTask;
+import fruitbasket.com.audioprocessor.record.RecordTask;
 import fruitbasket.com.audioprocessor.waveProducer.WaveType;
 
 /**
@@ -21,10 +22,10 @@ public class AudioService extends Service {
 
 	private AudioOutConfig audioOutConfig;
 
-	private Thread wavePlayThread;
 	private WavePlayTask wavePlayTask;
+	private RecordTask recordTask;
 
-	private AudioPlayer audioPlayer;
+	private MessageAudioPlayer messageAudioPlayer;
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -45,16 +46,15 @@ public class AudioService extends Service {
 		stopPlayingWave();
 		stopSendingText();
 
-		if(audioPlayer !=null){
-			audioPlayer.releaseResource();
+		if(messageAudioPlayer !=null){
+			messageAudioPlayer.releaseResource();
 		}
 		super.onDestroy();
 	}
 
 	public void startPlayingWave(WaveType waveType,int waveRate,int sampleRate){
 		wavePlayTask=new WavePlayTask(waveType,waveRate,sampleRate,audioOutConfig);
-		wavePlayThread=new Thread(wavePlayTask);
-		wavePlayThread.start();
+		new Thread(wavePlayTask).start();
 	}
 
 	public void stopPlayingWave(){
@@ -66,16 +66,29 @@ public class AudioService extends Service {
 
 	public void startSendingText(){
 		Log.i(TAG,"startSendingText()");
-		if(audioPlayer ==null){
-			audioPlayer =new AudioPlayer();
+		if(messageAudioPlayer ==null){
+			messageAudioPlayer =new MessageAudioPlayer();
 		}
-        audioPlayer.play("12345",true,1000);
+        messageAudioPlayer.play("12345",true,1000);
 	}
 
 	public void stopSendingText(){
 		Log.i(TAG,"stopSendingText()");
-		if(audioPlayer !=null){
-			audioPlayer.stopPlaying();
+		if(messageAudioPlayer !=null){
+			messageAudioPlayer.stopPlaying();
+		}
+	}
+
+	public void startRecord(){
+		Log.i(TAG,"startRecord()");
+		recordTask=new RecordTask();
+		new Thread(recordTask).start();
+	}
+
+	public void stopRecord(){
+		Log.i(TAG,"stopRecord()");
+		if(recordTask!=null){
+			recordTask.stopRecording();
 		}
 	}
 

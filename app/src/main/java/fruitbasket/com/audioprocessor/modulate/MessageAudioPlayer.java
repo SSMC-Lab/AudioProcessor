@@ -11,8 +11,8 @@ import fruitbasket.com.audioprocessor.AppCondition;
 /**
  * 用于播放音频信息
  */
-public class AudioPlayer {
-    private static final String TAG="modulate.AudioPlayer";
+public class MessageAudioPlayer {
+    private static final String TAG="MessageAudioPlayer";
 
     private AudioTrack audioTrack;
 
@@ -78,7 +78,7 @@ public class AudioPlayer {
     }
 
     /**
-     * 释放资源。当AudioPlayer不再使用时，应当调用此方法以释放资源
+     * 释放资源。当MessageAudioPlayer不再使用时，应当调用此方法以释放资源
      */
     public void releaseResource(){
         if(audioTrack !=null){

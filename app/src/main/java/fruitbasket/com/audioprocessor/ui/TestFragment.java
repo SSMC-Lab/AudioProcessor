@@ -33,6 +33,7 @@ public class TestFragment extends Fragment {
     private SeekBar seekbarWaveRate;
     private TextView textVeiwWaveRate;
     private ToggleButton sendText;
+    private ToggleButton record;
 
     private int waveRate;
 
@@ -134,6 +135,9 @@ public class TestFragment extends Fragment {
 
         sendText=(ToggleButton)view.findViewById(R.id.send_text);
         sendText.setOnClickListener(listener);
+
+        record=(ToggleButton)view.findViewById(R.id.record);
+        record.setOnClickListener(listener);
     }
 
 
@@ -163,6 +167,19 @@ public class TestFragment extends Fragment {
         }
     }
 
+    private void startRecord(){
+        Log.i(TAG,"startRecord()");
+        if(audioService!=null){
+            audioService.startRecord();
+        }
+    }
+
+    private void stopRecord(){
+        Log.i(TAG,"stopRecord()");
+        if(audioService!=null){
+            audioService.stopRecord();
+        }
+    }
 
     private class ToggleClickListener implements View.OnClickListener {
 
@@ -185,6 +202,16 @@ public class TestFragment extends Fragment {
                     else{
                         stopSendingText();
                     }
+                    break;
+
+                case R.id.record:
+                    if(((ToggleButton)view).isChecked()){
+                        startRecord();
+                    }
+                    else{
+                        stopRecord();
+                    }
+                    break;
             }
         }
     }

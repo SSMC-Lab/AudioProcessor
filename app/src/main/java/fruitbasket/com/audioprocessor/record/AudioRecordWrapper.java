@@ -90,7 +90,7 @@ public class AudioRecordWrapper {
 			audioRecord.stop();
 			audioRecord.release();
 
-			FileInputStream inputStream=new FileInputStream(audioFile);
+			FileInputStream inputStream=new FileInputStream(audioFile);///这里先将原始音频保存起来，在改装成wav文件，这不是一个号做法
 			FileOutputStream outputStream=new FileOutputStream(audioFullName+".wav");
 
 			int length=(int)inputStream.getChannel().size();
