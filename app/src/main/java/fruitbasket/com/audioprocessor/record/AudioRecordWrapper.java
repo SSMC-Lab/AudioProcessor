@@ -5,6 +5,9 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 
@@ -59,10 +62,16 @@ public class AudioRecordWrapper {
 			Log.e(TAG,"recordingBufferSize==AudioRecord.ERROR");
 			return false;
 		}
-		byte[] buffer = new byte[bufferSize];
+		///byte[] buffer = new byte[bufferSize];
+		short[] buffer=new short[bufferSize];
 
 		try {
-			FileOutputStream output = new FileOutputStream(audioFile);
+			///FileOutputStream output = new FileOutputStream(audioFile);
+			DataOutputStream output=new DataOutputStream(
+					new BufferedOutputStream(
+							new FileOutputStream(audioFile)
+					)
+			);
 			AudioRecord audioRecord = new AudioRecord(
 					MediaRecorder.AudioSource.MIC,
 					sampleRate,
@@ -73,27 +82,36 @@ public class AudioRecordWrapper {
 
 			isRecording = true;
 			while (isRecording) {
-				int readState = audioRecord.read(buffer, 0, bufferSize);
-				if(readState==AudioRecord.ERROR_INVALID_OPERATION){
+				int readResult = audioRecord.read(buffer, 0, bufferSize);
+				if(readResult==AudioRecord.ERROR_INVALID_OPERATION){
 					Log.e(TAG,"readState==AudioRecord.ERROR_INVALID_OPERATION");
 					return false;
 				}
-				else if(readState==AudioRecord.ERROR_BAD_VALUE){
+				else if(readResult==AudioRecord.ERROR_BAD_VALUE){
 					Log.e(TAG,"readState==AudioRecord.ERROR_BAD_VALUE");
 					return false;
 				}
 				else{
-					output.write(buffer);
+					///output.write(buffer);
+					for(int i=0;i<readResult;i++){
+						output.writeShort(buffer[i]);
+					}
 				}
 			}
 			output.close();
 			audioRecord.stop();
 			audioRecord.release();
 
-			FileInputStream inputStream=new FileInputStream(audioFile);///这里先将原始音频保存起来，在改装成wav文件，这不是一个号做法
-			FileOutputStream outputStream=new FileOutputStream(audioFullName+".wav");
+			//制作wav文件
+			///这里先将原始音频保存起来，在改装成wav文件，这不是一个好做法
+			FileInputStream fis= new FileInputStream(audioFile);
+			BufferedInputStream inputStream=new BufferedInputStream(fis);
+			BufferedOutputStream outputStream=new BufferedOutputStream(
+					new FileOutputStream(audioFullName+".wav")
+			);
+			byte[] readBuffer=new byte[1024];
 
-			int length=(int)inputStream.getChannel().size();
+			int length=(int)fis.getChannel().size();
 			wavHeader.setAdjustFileLength(length-8);
 			wavHeader.setAudioDataLength(length-44);
 			wavHeader.setBlockAlign(channelIn,encoding);
@@ -104,8 +122,8 @@ public class AudioRecordWrapper {
 			wavHeader.setWaveFormatPcm(WavHeader.WAV_FORMAT_PCM);
 
 			outputStream.write(wavHeader.getHeader());
-			while (inputStream.read(buffer) != -1) {
-				outputStream.write(buffer);
+			while (inputStream.read(readBuffer) != -1) {
+				outputStream.write(readBuffer);
 			}
 			inputStream.close();
 			outputStream.close();
