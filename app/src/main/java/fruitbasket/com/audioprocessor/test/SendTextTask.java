@@ -1,12 +1,10 @@
-package fruitbasket.com.audioprocessor.play;
+package fruitbasket.com.audioprocessor.test;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.AsyncTask;
 import android.util.Log;
-
-import fruitbasket.com.audioprocessor.record.ReceiveTextTask;
 
 public class SendTextTask extends AsyncTask<Void, Void, Void> {
     private static final String TAG = SendTextTask.class.toString();

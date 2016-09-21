@@ -3,10 +3,13 @@ package fruitbasket.com.audioprocessor;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
+import fruitbasket.com.audioprocessor.modulate.AudioRecognition;
 import fruitbasket.com.audioprocessor.modulate.MessageAudioPlayer;
+import fruitbasket.com.audioprocessor.modulate.RecognitionTask;
 import fruitbasket.com.audioprocessor.play.AudioOutConfig;
 import fruitbasket.com.audioprocessor.play.WavePlayTask;
 import fruitbasket.com.audioprocessor.record.RecordTask;
@@ -24,9 +27,12 @@ public class AudioService extends Service {
 
 	private WavePlayTask wavePlayTask;
 	private RecordTask recordTask;
+	private RecognitionTask recognitionTask;
 
 	private MessageAudioPlayer messageAudioPlayer;
-	
+
+	private Handler handler;
+
 	@Override
 	public IBinder onBind(Intent arg0) {
 		return new RecordServiceBinder();
@@ -50,6 +56,14 @@ public class AudioService extends Service {
 			messageAudioPlayer.releaseResource();
 		}
 		super.onDestroy();
+	}
+
+	public void setHandler(Handler handler){
+		this.handler=handler;
+	}
+
+	public Handler getHandler(){
+		return this.handler;
 	}
 
 	public void startPlayingWave(WaveType waveType,int waveRate,int sampleRate){
@@ -91,6 +105,22 @@ public class AudioService extends Service {
 			recordTask.stopRecording();
 		}
 	}
+
+	public void startRecognition(){
+		Log.i(TAG,"startRecognition()");
+		recognitionTask=new RecognitionTask();
+        recognitionTask.setHandler(handler);
+		recognitionTask.prepare();
+		new Thread(recognitionTask).start();
+	}
+
+	public void stopRecognition(){
+		Log.i(TAG,"stopRecognition()");
+		if(recognitionTask!=null){
+			recognitionTask.stop();
+		}
+	}
+
 
 	public void setAudioOutConfig(AudioOutConfig audioOutConfig){
 		this.audioOutConfig=audioOutConfig;

@@ -1,4 +1,4 @@
-package fruitbasket.com.audioprocessor.record;
+package fruitbasket.com.audioprocessor.test;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;

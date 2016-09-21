@@ -62,11 +62,9 @@ public class AudioRecordWrapper {
 			Log.e(TAG,"recordingBufferSize==AudioRecord.ERROR");
 			return false;
 		}
-		///byte[] buffer = new byte[bufferSize];
 		short[] buffer=new short[bufferSize];
 
 		try {
-			///FileOutputStream output = new FileOutputStream(audioFile);
 			DataOutputStream output=new DataOutputStream(
 					new BufferedOutputStream(
 							new FileOutputStream(audioFile)
@@ -92,19 +90,19 @@ public class AudioRecordWrapper {
 					return false;
 				}
 				else{
-					///output.write(buffer);
 					for(int i=0;i<readResult;i++){
 						output.writeShort(buffer[i]);
 					}
 				}
 			}
-			output.close();
 			audioRecord.stop();
+			output.close();
 			audioRecord.release();
 
 			//制作wav文件
+			///这里录得的wav文件存在问题
 			///这里先将原始音频保存起来，在改装成wav文件，这不是一个好做法
-			FileInputStream fis= new FileInputStream(audioFile);
+			/*FileInputStream fis= new FileInputStream(audioFile);
 			BufferedInputStream inputStream=new BufferedInputStream(fis);
 			BufferedOutputStream outputStream=new BufferedOutputStream(
 					new FileOutputStream(audioFullName+".wav")
@@ -126,7 +124,7 @@ public class AudioRecordWrapper {
 				outputStream.write(readBuffer);
 			}
 			inputStream.close();
-			outputStream.close();
+			outputStream.close();*/
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

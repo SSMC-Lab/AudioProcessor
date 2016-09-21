@@ -15,6 +15,9 @@ import fruitbasket.com.audioprocessor.AppCondition;
 import fruitbasket.com.audioprocessor.waveProducer.WaveProducer;
 import fruitbasket.com.audioprocessor.waveProducer.WaveType;
 
+/**
+ * 用于播放原始音频（pcm）
+ */
 public class AudioTrackWrapper {
 	private static final String TAG=AudioTrackWrapper.class.toString();
 

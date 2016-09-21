@@ -53,10 +53,10 @@ public class Encoder {
         boolean state=true;
         if (!TextUtils.isEmpty(text)) {
             codes.clear();
-            codes.add(Condition.START);//插入编码的开始标记
+            codes.add(ModulateCondition.START);//插入编码的开始标记
             int textLength=text.length();
             for(int i=0;i<textLength;++i){
-                int index=Condition.CHAR_BOOK.indexOf(text.charAt(i));
+                int index= ModulateCondition.CHAR_BOOK.indexOf(text.charAt(i));
                 if(index>-1){
                     codes.add(index+1);//index+1是因为声波频率编码表中第0个元素已经被用作开头标记
                     Log.i(TAG,"convertTextToCodes(): index+1=="+(index+1));
@@ -66,7 +66,7 @@ public class Encoder {
                 }
             }
             if(state){
-                codes.add(Condition.END);//插入编码的结束标记
+                codes.add(ModulateCondition.END);//插入编码的结束标记
             }
         }
         Log.i(TAG,"convertTextToCodes(): codes.size()=="+codes.size());
@@ -81,7 +81,7 @@ public class Encoder {
         short[][] data=new short[codes.size()][];
         for(int index:codes){
             data[index]=WaveProducer.getSinWave(
-                    Condition.WAVE_RATE_BOOK[index],
+                    ModulateCondition.WAVE_RATE_BOOK[index],
                     AppCondition.DEFAULE_SIMPLE_RATE,
                     AppCondition.DEFAULE_SIMPLE_RATE/(1000/DEFAULT_DURATION)
             );

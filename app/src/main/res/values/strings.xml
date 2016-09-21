@@ -4,4 +4,5 @@
     <string name="choose_channel_out">choose a channel out : </string>
     <string name="wave_producer">wave producer : </string>
     <string name="frequency">%1$d K Hz</string>
+    <string name="detect_frequency">%1$d Hz</string>
 </resources>

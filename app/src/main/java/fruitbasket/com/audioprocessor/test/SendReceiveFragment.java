@@ -1,4 +1,4 @@
-package fruitbasket.com.audioprocessor.ui;
+package fruitbasket.com.audioprocessor.test;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,8 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import fruitbasket.com.audioprocessor.R;
-import fruitbasket.com.audioprocessor.play.SendTextTask;
-import fruitbasket.com.audioprocessor.record.ReceiveTextTask;
 
 /**
  * 利用声波发送文本，并接受该声波并解码为文本显示

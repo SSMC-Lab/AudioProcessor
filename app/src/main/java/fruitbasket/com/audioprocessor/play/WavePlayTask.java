@@ -6,6 +6,7 @@ import fruitbasket.com.audioprocessor.AppCondition;
 import fruitbasket.com.audioprocessor.waveProducer.WaveType;
 
 /**
+ * 播放声波的任务
  * Created by Study on 28/06/2016.
  */
 public class WavePlayTask implements Runnable {

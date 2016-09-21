@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,6 +21,7 @@ import android.widget.ToggleButton;
 import fruitbasket.com.audioprocessor.AudioService;
 import fruitbasket.com.audioprocessor.AppCondition;
 import fruitbasket.com.audioprocessor.R;
+import fruitbasket.com.audioprocessor.modulate.ModulateCondition;
 import fruitbasket.com.audioprocessor.play.AudioOutConfig;
 import fruitbasket.com.audioprocessor.waveProducer.WaveType;
 
@@ -34,8 +37,11 @@ public class TestFragment extends Fragment {
     private TextView textVeiwWaveRate;
     private ToggleButton sendText;
     private ToggleButton record;
+    private ToggleButton frequenceDectector;
+    private TextView frequenceTextView;
 
     private int waveRate;
+    private Handler handler;
 
     private Intent intentToRecord;
     private AudioService audioService;
@@ -45,6 +51,7 @@ public class TestFragment extends Fragment {
         public void onServiceConnected(ComponentName name, IBinder binder) {
             Log.d(TAG,"ServiceConnection.onServiceConnection()");
             audioService =((AudioService.RecordServiceBinder)binder).getService();
+            audioService.setHandler(handler);
         }
 
         @Override
@@ -61,9 +68,10 @@ public class TestFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        handler=new MyHandler();
         intentToRecord=new Intent(getActivity(),AudioService.class);
-        if(audioService ==null){
-            getActivity().bindService(intentToRecord,serviceConnection, Context.BIND_AUTO_CREATE);
+        if(audioService ==null) {
+            getActivity().bindService(intentToRecord, serviceConnection, Context.BIND_AUTO_CREATE);
             //do not execute startService()
         }
     }
@@ -138,6 +146,10 @@ public class TestFragment extends Fragment {
 
         record=(ToggleButton)view.findViewById(R.id.record);
         record.setOnClickListener(listener);
+
+        frequenceDectector=(ToggleButton)view.findViewById(R.id.frequence_dectector);
+        frequenceDectector.setOnClickListener(listener);
+        frequenceTextView=(TextView)view.findViewById(R.id.frequence);
     }
 
 
@@ -181,6 +193,34 @@ public class TestFragment extends Fragment {
         }
     }
 
+    private void startFrequenceDetect(){
+        Log.i(TAG,"startFrequenceDetect()");
+        if(audioService!=null){
+            audioService.startRecognition();
+        }
+    }
+
+    private void stopFrequenceDetect(){
+        Log.i(TAG,"stopFrequenceDetect()");
+        if(audioService!=null){
+            audioService.stopRecognition();
+        }
+    }
+
+    private class MyHandler extends Handler {
+
+        @Override
+        public void handleMessage(Message message){
+            Log.i(TAG,"MyHandler.handlerMessage()");
+            if(message.what== ModulateCondition.AUDIO_PROCESSOR){
+                Log.i(TAG,"message.what==ModulateCondition.AUDIO_PROCESSOR");
+                int frequency=message.getData().getInt(ModulateCondition.KEY_FREQUENCY);
+                Log.i(TAG,"frequency="+frequency);
+                frequenceTextView.setText(getResources().getString(R.string.detect_frequency,frequency));
+            }
+        }
+    }
+
     private class ToggleClickListener implements View.OnClickListener {
 
         @Override
@@ -210,6 +250,15 @@ public class TestFragment extends Fragment {
                     }
                     else{
                         stopRecord();
+                    }
+                    break;
+
+                case R.id.frequence_dectector:
+                    if(((ToggleButton)view).isChecked()){
+                        startFrequenceDetect();
+                    }
+                    else{
+                        stopFrequenceDetect();
                     }
                     break;
             }

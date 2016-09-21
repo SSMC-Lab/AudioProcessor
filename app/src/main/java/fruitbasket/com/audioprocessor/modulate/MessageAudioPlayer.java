@@ -16,6 +16,8 @@ public class MessageAudioPlayer {
 
     private AudioTrack audioTrack;
 
+    public MessageAudioPlayer(){}
+
     /**
      * 将一段文本调制成音频信息，然后播放出来
      * @param text 文本
