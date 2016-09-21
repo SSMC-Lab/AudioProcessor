@@ -3,12 +3,14 @@ package fruitbasket.com.audioprocessor;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
+import fruitbasket.com.audioprocessor.modulate.AudioRecognition;
+import fruitbasket.com.audioprocessor.modulate.MessageAudioPlayer;
+import fruitbasket.com.audioprocessor.modulate.RecognitionTask;
 import fruitbasket.com.audioprocessor.play.AudioOutConfig;
-import fruitbasket.com.audioprocessor.play.CommonPlayTask;
-import fruitbasket.com.audioprocessor.play.PCMPlayTask;
 import fruitbasket.com.audioprocessor.play.WavePlayTask;
 import fruitbasket.com.audioprocessor.record.RecordTask;
 import fruitbasket.com.audioprocessor.waveProducer.WaveType;
@@ -21,20 +23,16 @@ import fruitbasket.com.audioprocessor.waveProducer.WaveType;
 public class AudioService extends Service {
 	private static final String TAG=AudioService.class.toString();
 
-	private Thread recordThread;
-	private RecordTask recordTask;
-	
-	private Thread pcmPlayThread;
-	private PCMPlayTask PCMPlayTask;
-
-	private Thread audioFilePlayThread;
-	private CommonPlayTask commonPlayTask;
-
-	private Thread wavePlayThread;
-	private WavePlayTask wavePlayTask;
-
 	private AudioOutConfig audioOutConfig;
-	
+
+	private WavePlayTask wavePlayTask;
+	private RecordTask recordTask;
+	private RecognitionTask recognitionTask;
+
+	private MessageAudioPlayer messageAudioPlayer;
+
+	private Handler handler;
+
 	@Override
 	public IBinder onBind(Intent arg0) {
 		return new RecordServiceBinder();
@@ -51,80 +49,26 @@ public class AudioService extends Service {
 		Log.d(TAG,"onDestroy()");
 
 		//在服务结束时，必须结束所有任务
-		stopPlaying();
-		stopPlayingAudioFile();
-		stopRecording();
+		stopPlayingWave();
+		stopSendingText();
+
+		if(messageAudioPlayer !=null){
+			messageAudioPlayer.releaseResource();
+		}
 		super.onDestroy();
 	}
 
-	/**
-	 * 开始录制音频
-	 */
-	public void startRecording(){
-		recordTask=new RecordTask();
-		recordThread=new Thread(recordTask);
-		recordThread.start();
+	public void setHandler(Handler handler){
+		this.handler=handler;
 	}
 
-	/**
-	 * 停止录制音频
-	 */
-	public void stopRecording(){
-		if(recordTask!=null){
-			recordTask.stopRecording();
-		}
-	}
-
-	/**
-	 * 开始播放录制的音频
-	 * @param recordingFilePath 指定一个录制的音频，音频的格式必须为pcm
-	 * @param sampleRate 采样频率
-     */
-	public void startPlaying(String recordingFilePath,int sampleRate){
-		PCMPlayTask =new PCMPlayTask(recordingFilePath,audioOutConfig);
-		pcmPlayThread =new Thread(PCMPlayTask);
-		pcmPlayThread.start();
-	}
-	
-	public void stopPlaying(){
-		if(PCMPlayTask !=null){
-			PCMPlayTask.stopPlaying();
-			PCMPlayTask =null;
-		}
-	}
-
-	/**
-	 * 开始播放一个音频文件
-	 */
-	public void startPlayingAudioFile(){
-		commonPlayTask =new CommonPlayTask(Condition.AUDIO_FILE_PATH,audioOutConfig);
-		audioFilePlayThread =new Thread(commonPlayTask);
-		audioFilePlayThread.start();
-	}
-
-	/**
-	 * @param audioPath 指定音频文件的路径
-     */
-	public void startPlayingAudioFile(String audioPath){
-		commonPlayTask =new CommonPlayTask(audioPath,audioOutConfig);
-		audioFilePlayThread =new Thread(commonPlayTask);
-		audioFilePlayThread.start();
-	}
-
-	/**
-	 * 停止播放一个音频文件
-	 */
-	public void stopPlayingAudioFile(){
-		if(commonPlayTask !=null){
-			commonPlayTask.stopPlaying();
-			commonPlayTask =null;
-		}
+	public Handler getHandler(){
+		return this.handler;
 	}
 
 	public void startPlayingWave(WaveType waveType,int waveRate,int sampleRate){
 		wavePlayTask=new WavePlayTask(waveType,waveRate,sampleRate,audioOutConfig);
-		wavePlayThread=new Thread(wavePlayTask);
-		wavePlayThread.start();
+		new Thread(wavePlayTask).start();
 	}
 
 	public void stopPlayingWave(){
@@ -133,6 +77,50 @@ public class AudioService extends Service {
 			wavePlayTask=null;
 		}
 	}
+
+	public void startSendingText(){
+		Log.i(TAG,"startSendingText()");
+		if(messageAudioPlayer ==null){
+			messageAudioPlayer =new MessageAudioPlayer();
+		}
+        messageAudioPlayer.play("12345",true,1000);
+	}
+
+	public void stopSendingText(){
+		Log.i(TAG,"stopSendingText()");
+		if(messageAudioPlayer !=null){
+			messageAudioPlayer.stopPlaying();
+		}
+	}
+
+	public void startRecord(){
+		Log.i(TAG,"startRecord()");
+		recordTask=new RecordTask();
+		new Thread(recordTask).start();
+	}
+
+	public void stopRecord(){
+		Log.i(TAG,"stopRecord()");
+		if(recordTask!=null){
+			recordTask.stopRecording();
+		}
+	}
+
+	public void startRecognition(){
+		Log.i(TAG,"startRecognition()");
+		recognitionTask=new RecognitionTask();
+        recognitionTask.setHandler(handler);
+		recognitionTask.prepare();
+		new Thread(recognitionTask).start();
+	}
+
+	public void stopRecognition(){
+		Log.i(TAG,"stopRecognition()");
+		if(recognitionTask!=null){
+			recognitionTask.stop();
+		}
+	}
+
 
 	public void setAudioOutConfig(AudioOutConfig audioOutConfig){
 		this.audioOutConfig=audioOutConfig;

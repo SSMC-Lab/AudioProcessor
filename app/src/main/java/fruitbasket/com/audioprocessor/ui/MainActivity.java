@@ -17,9 +17,9 @@ public class MainActivity extends AppCompatActivity {
     private Fragment mainFragment;
     private Fragment testFragment;
 
-    public MainActivity(){
-        mainFragment=new MainFragment();
-        testFragment=new TestFragment();
+    public MainActivity() {
+        mainFragment = new MainFragment();
+        testFragment = new TestFragment();
     }
 
     @Override
@@ -28,10 +28,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
@@ -42,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            switch(position){
+            switch (position) {
                 case 0:
                     return mainFragment;
 

@@ -3,6 +3,7 @@ package fruitbasket.com.audioprocessor.play;
 import android.media.MediaPlayer;
 
 /**
+ * 用于播放普通的音频
  * Created by Study on 24/06/2016.
  */
 public class MediaPlayerWrapper {

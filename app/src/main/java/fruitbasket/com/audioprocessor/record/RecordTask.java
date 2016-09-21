@@ -1,5 +1,8 @@
 package fruitbasket.com.audioprocessor.record;
 
+/**
+ * 用于录音的任务
+ */
 public class RecordTask implements Runnable {
 	
 	AudioRecordWrapper audioRecordWrapper;
