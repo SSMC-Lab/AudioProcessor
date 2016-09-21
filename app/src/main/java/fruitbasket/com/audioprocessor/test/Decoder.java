@@ -72,10 +72,10 @@ public class Decoder extends Thread {
         for (int i = 0; i < audioData.length; i++) {
             Log.e(TAG, "audioData[" + i + "] = " + audioData[i]);
         }
-        if (signalAvailable(audioData)) {
+        if (signalAvailable(audioData)) {           //先判断数据是否有效
             Log.e(TAG, "signalAvailable = true");
-            int[] nPeaks = processSound(audioData);
-            int[] bits = parseBits(nPeaks);
+            int[] nPeaks = processSound(audioData);     //将音频的short[]转成代表峰数的int[]
+            int[] bits = parseBits(nPeaks);             //from the number of peaks array decode into an array of bits (2=bit-1, 1=bit-0, 0=no bit)
             String str = "";
             for (int i = 0; i < bits.length; i++) {
                 if (bits[i] == 2) {
@@ -108,13 +108,13 @@ public class Decoder extends Thread {
             nPeak += countPeaks(audioData, startIndex, startIndex + nPoints);
             startIndex += nPoints;
             index++;
-            if (nPeak > 50) return true;    ///>=64？ >=192
+            if (nPeak > 50) return true;    ///>=64？ >=192     如果一个字符八位均为0，则周期数为：8（112位表示有8个周期）*8（共8位）=64
         }
         return false;
     }
 
     /**
-     * 将音频的short[]转成代表峰数的int[]
+     * 将音频的short[]转成代表峰数的int[]，14位为一组；  代表0的周期为7，14位峰数为2；代表1的周期为14，14位峰数为1
      *
      * @param audioData short[]
      * @return 代表峰数的int[]
@@ -171,6 +171,7 @@ public class Decoder extends Thread {
 
     /**
      * from the number of peaks array decode into an array of bits (2=bit-1, 1=bit-0, 0=no bit)
+     * 0或1均以112位short表示，其中每14位判断峰数，故总共有八段。
      *
      * @param peaks short[]
      * @return
@@ -191,10 +192,10 @@ public class Decoder extends Thread {
             int position = i / 8;
             bits[position] = 0;
 
-            if (nPeaks >= 12) {     ///8?
+            if (nPeaks >= 12) {     ///8?   标准情况数字0的112位表示中，一周期为14，故112位里周期有8
                 bits[position] = 1;
             }
-            if (nPeaks >= 30) {     ///16?
+            if (nPeaks >= 30) {     ///16?  标准情况数字1的112位表示中，一周期为7，故112位里周期有16
                 bits[position] = 2;
             }
 
@@ -226,11 +227,11 @@ public class Decoder extends Thread {
      * @param s 由01组成的字符串
      */
     private void handleData(String s) {
-        String startKey = byteToString(preamble);
+        String startKey = byteToString(preamble);       //每段有效字符前的标志0xaf的字符串表示
         int pos = s.indexOf(startKey);  //查找开始的标识
         Log.e(TAG, "pos.length = " + pos);
         if (pos != -1) {
-            String packetStringWithLength = s.substring(pos + startKey.length());
+            String packetStringWithLength = s.substring(pos + startKey.length());       //去除标志
             if (packetStringWithLength.length() >= 12 * 8) {          ///不知道是干嘛的？
                 int length = Integer.parseInt(packetStringWithLength.substring(0, 8), 2);       //其中有效信息的长度
                 Log.e(TAG, "msg.length = " + length);
