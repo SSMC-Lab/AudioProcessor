@@ -8,11 +8,11 @@ final public class AppCondition {
 	/*
 	App的根目录
 	 */
-	public static final String APP_FILE_DIR=Environment.getExternalStorageDirectory()+/*File.separator+*/"/AudioProcessor";
+	public static final String APP_FILE_DIR=Environment.getExternalStorageDirectory()+"/AudioProcessor";
 	/*
 	默认的声音样本频率
 	 */
-	public static final int DEFAULE_SIMPLE_RATE =44100;///可能存在多处使用不一致的声音播放频率
+	public static final int DEFAULE_SIMPLE_RATE =44100;
 	
 	private AppCondition(){}
 	

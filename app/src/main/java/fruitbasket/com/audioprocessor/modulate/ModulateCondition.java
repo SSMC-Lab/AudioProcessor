@@ -1,6 +1,6 @@
 package fruitbasket.com.audioprocessor.modulate;
 
-public class ModulateCondition {
+final public class ModulateCondition {
     private static final ModulateCondition condition=new ModulateCondition();
 
     /*

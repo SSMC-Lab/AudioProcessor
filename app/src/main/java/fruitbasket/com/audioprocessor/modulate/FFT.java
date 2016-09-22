@@ -4,7 +4,7 @@ package fruitbasket.com.audioprocessor.modulate;
  * @author Orlando Selenu
  *
  */
-public class FFT {
+final public class FFT {
     private static final FFT instance=new FFT();
 
     private FFT(){}

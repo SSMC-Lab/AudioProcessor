@@ -9,10 +9,10 @@ import fruitbasket.com.audioprocessor.AppCondition;
 
 
 /**
- *
+ * 用于检测声音频率的任务
  * Created by Study on 18/09/2016.
  */
-public class AudioProcessorTask implements Runnable {
+final public class AudioProcessorTask implements Runnable {
     private static final String TAG="AudioProcessorTask";
 
     private Handler handler;//赋予这个任务更新用户界面的能力

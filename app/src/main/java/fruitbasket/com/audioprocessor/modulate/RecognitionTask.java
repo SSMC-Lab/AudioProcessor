@@ -6,7 +6,7 @@ import android.util.Log;
 /**
  * Created by Study on 19/09/2016.
  */
-public class RecognitionTask implements Runnable {
+final public class RecognitionTask implements Runnable {
     private static final String TAG="RecognitionTask";
 
     private Handler handler;

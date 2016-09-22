@@ -2,9 +2,11 @@ package fruitbasket.com.audioprocessor.record;
 
 
 import android.media.AudioFormat;
-import android.util.Log;
 
-public class WavHeader {
+/**
+ * wav文件的包装类
+ */
+final public class WavHeader {
     public static final short WAV_FORMAT_PCM=1;
 
     private byte[] header;

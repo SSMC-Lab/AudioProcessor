@@ -9,7 +9,7 @@ import fruitbasket.com.audioprocessor.waveProducer.WaveType;
  * 播放声波的任务
  * Created by Study on 28/06/2016.
  */
-public class WavePlayTask implements Runnable {
+final public class WavePlayTask implements Runnable {
     private static final String TAG=WavePlayTask.class.toString();
 
     private AudioTrackWrapper audioTrackWrapper;

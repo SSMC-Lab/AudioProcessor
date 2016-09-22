@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
-import fruitbasket.com.audioprocessor.modulate.AudioRecognition;
 import fruitbasket.com.audioprocessor.modulate.MessageAudioPlayer;
 import fruitbasket.com.audioprocessor.modulate.RecognitionTask;
 import fruitbasket.com.audioprocessor.play.AudioOutConfig;

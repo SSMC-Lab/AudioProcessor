@@ -4,7 +4,6 @@ final public class WaveProducer {
 	private static final String TAG=WaveProducer.class.toString();
 	private static final WaveProducer waveProducer =new WaveProducer();
 
-	private static final int DEDAULT_SAMPLE_COUNT =10000; //生成的波的样本数量
 	private static final short WAVE_RANGE=Short.MAX_VALUE;
 
 
@@ -15,7 +14,7 @@ final public class WaveProducer {
 	}
 
 	/**
-	 *  取得一段波
+	 *  计算得一段波
 	 * @param waveType 波的类型
 	 * @param waveRate 波的频率
 	 * @param sampleRate 发声设备的实际发声频率
@@ -32,7 +31,7 @@ final public class WaveProducer {
 	}
 
 	/**
-	 *
+	 * 计算得一段sin波
 	 * @param waveRate 波的频率
 	 * @param sampleRate 发声设备的实际发声频率
 	 * @param sampleCount 生成的波的样本数量
