@@ -8,7 +8,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
 import fruitbasket.com.audioprocessor.R;
-import fruitbasket.com.audioprocessor.test.SendReceiveFragment;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,12 +17,12 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager mViewPager;
     private Fragment mainFragment;
     private Fragment testFragment;
-    private Fragment sendReceiveFragment;
+
 
     public MainActivity() {
         mainFragment = new MainFragment();
         testFragment = new TestFragment();
-        sendReceiveFragment = new SendReceiveFragment();
+
     }
 
     @Override
@@ -50,15 +50,13 @@ public class MainActivity extends AppCompatActivity {
                 case 1:
                     return testFragment;
 
-                case 2:
-                    return sendReceiveFragment;
             }
             return null;
         }
 
         @Override
         public int getCount() {
-            return 3;
+            return 2;
         }
 
         @Override
@@ -68,8 +66,6 @@ public class MainActivity extends AppCompatActivity {
                     return "SoundProcessor";
                 case 1:
                     return "Test";
-                case 2:
-                    return "SendReceiveText";
             }
             return null;
         }
