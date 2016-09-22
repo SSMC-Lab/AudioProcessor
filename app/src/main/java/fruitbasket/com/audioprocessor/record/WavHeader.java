@@ -2,14 +2,15 @@ package fruitbasket.com.audioprocessor.record;
 
 
 import android.media.AudioFormat;
+import android.util.Log;
 
 public class WavHeader {
     public static final short WAV_FORMAT_PCM=1;
 
     private byte[] header;
 
-    public WavHeader(){
-        header=new byte[44];
+    public WavHeader() {
+        header = new byte[44];
 
         header[0] = 'R';
         header[1] = 'I';
@@ -72,7 +73,7 @@ public class WavHeader {
          */
     }
 
-    public boolean setAdjustFileLength(int length){
+    public boolean setAdjustFileLength(long length) {
         header[4] = (byte) (length & 0xff);
         header[5] = (byte) ((length >> 8) & 0xff);
         header[6] = (byte) ((length >> 16) & 0xff);
@@ -80,122 +81,110 @@ public class WavHeader {
         return true;
     }
 
-    public boolean setWaveFormatPcm(short format){
-        header[20]=(byte)(format&0xff);
-        header[21]=(byte)((format>>8)&0xff);
+    public boolean setWaveFormatPcm(short format) {
+        header[20] = (byte) (format & 0xff);
+        header[21] = (byte) ((format >> 8) & 0xff);
         return true;
     }
 
-    public boolean setChannelCount(int channelIn){
+    public boolean setChannelCount(int channelIn) {
         short channelCount;
-        if(channelIn== AudioFormat.CHANNEL_IN_MONO){
-            channelCount=1;
-        }
-        else if(channelIn==AudioFormat.CHANNEL_IN_STEREO){
-            channelCount=2;
-        }
-        else{
+        if (channelIn == AudioFormat.CHANNEL_IN_MONO) {
+            channelCount = 1;
+        } else if (channelIn == AudioFormat.CHANNEL_IN_STEREO) {
+            channelCount = 2;
+        } else {
             return false;
         }
 
-        header[22]=(byte)(channelCount&0xff);
-        header[23]=(byte)((channelCount>>8)&0xff);
+        header[22] = (byte) (channelCount & 0xff);
+        header[23] = (byte) ((channelCount >> 8) & 0xff);
         return true;
     }
+
 
     public boolean setSampleRate(int sampleRate){
         header[24]=(byte)(sampleRate&0xff);
         header[25]=(byte)((sampleRate>>8)&0xff);
         header[26]=(byte)((sampleRate>>16)&0xff);
         header[27]=(byte)((sampleRate>>24)&0xff);
-
         return true;
     }
 
-    public boolean setByteRate(int channelIn,int sampleRate,int encodingPcm){
+    public boolean setByteRate(int channelIn, int sampleRate, int encodingPcm) {
         short channelCount;
         short encodingBit;
 
-        if(channelIn== AudioFormat.CHANNEL_IN_MONO){
-            channelCount=1;
-        }
-        else if(channelIn==AudioFormat.CHANNEL_IN_STEREO){
-            channelCount=2;
-        }
-        else{
+        if (channelIn == AudioFormat.CHANNEL_IN_MONO) {
+            channelCount = 1;
+        } else if (channelIn == AudioFormat.CHANNEL_IN_STEREO) {
+            channelCount = 2;
+        } else {
             return false;
         }
-        if(encodingPcm==AudioFormat.ENCODING_PCM_8BIT){
-            encodingBit=8;
-        }
-        else if(encodingPcm==AudioFormat.ENCODING_PCM_16BIT){
-            encodingBit=16;
-        }
-        else{
+        if (encodingPcm == AudioFormat.ENCODING_PCM_8BIT) {
+            encodingBit = 8;
+        } else if (encodingPcm == AudioFormat.ENCODING_PCM_16BIT) {
+            encodingBit = 16;
+        } else {
             return false;
         }
 
-        int byteRate=channelCount*sampleRate*encodingBit/8;
-        header[28]=(byte)(byteRate&0xff);
-        header[29]=(byte)((byteRate>>8)&0xff);
-        header[30]=(byte)((byteRate>>16)&0xff);
-        header[31]=(byte)((byteRate>>24)&0xff);
+        int byteRate = channelCount * sampleRate * encodingBit / 8;
+        header[28] = (byte) (byteRate & 0xff);
+        header[29] = (byte) ((byteRate >> 8) & 0xff);
+        header[30] = (byte) ((byteRate >> 16) & 0xff);
+        header[31] = (byte) ((byteRate >> 24) & 0xff);
         return true;
     }
 
-    public boolean setBlockAlign(int channelIn,int encodingPcm){
+    public boolean setBlockAlign(int channelIn, int encodingPcm) {
         short channelCount;
         short encodingBit;
-        if(channelIn== AudioFormat.CHANNEL_IN_MONO){
-            channelCount=1;
-        }
-        else if(channelIn==AudioFormat.CHANNEL_IN_STEREO){
-            channelCount=2;
-        }
-        else{
+        if (channelIn == AudioFormat.CHANNEL_IN_MONO) {
+            channelCount = 1;
+        } else if (channelIn == AudioFormat.CHANNEL_IN_STEREO) {
+            channelCount = 2;
+        } else {
             return false;
         }
-        if(encodingPcm==AudioFormat.ENCODING_PCM_8BIT){
-            encodingBit=8;
-        }
-        else if(encodingPcm==AudioFormat.ENCODING_PCM_16BIT){
-            encodingBit=16;
-        }
-        else{
+        if (encodingPcm == AudioFormat.ENCODING_PCM_8BIT) {
+            encodingBit = 8;
+        } else if (encodingPcm == AudioFormat.ENCODING_PCM_16BIT) {
+            encodingBit = 16;
+        } else {
             return false;
         }
-        short blockAlign=(short)(channelCount*encodingBit/8);
-        header[32]=(byte)(blockAlign&0xff);
-        header[33]=(byte)((blockAlign>>8)&0xff);
+        short blockAlign = (short) (channelCount * encodingBit / 8);
+        header[32] = (byte) (blockAlign & 0xff);
+        header[33] = (byte) ((blockAlign >> 8) & 0xff);
         return true;
     }
 
-    public boolean setEncodingBit(int encodingPcm){
+    public boolean setEncodingBit(int encodingPcm) {
         short encodingBit;
-        if(encodingPcm==AudioFormat.ENCODING_PCM_8BIT){
-            encodingBit=8;
-        }
-        else if(encodingPcm==AudioFormat.ENCODING_PCM_16BIT){
-            encodingBit=16;
-        }
-        else{
+        if (encodingPcm == AudioFormat.ENCODING_PCM_8BIT) {
+            encodingBit = 8;
+        } else if (encodingPcm == AudioFormat.ENCODING_PCM_16BIT) {
+            encodingBit = 16;
+        } else {
             return false;
         }
 
-        header[34]=(byte)(encodingBit&0xff);
-        header[35]=(byte)((encodingBit>>8)&0xff);
+        header[34] = (byte) (encodingBit & 0xff);
+        header[35] = (byte) ((encodingBit >> 8) & 0xff);
         return true;
     }
 
-    public boolean setAudioDataLength(int length){
-        header[40]=(byte)(length&0xff);
-        header[41]=(byte)((length>>8)&0xff);
-        header[42]=(byte)((length>>16)&0xff);
-        header[43]=(byte)((length>>24)&0xff);
+    public boolean setAudioDataLength(long length) {
+        header[40] = (byte) (length & 0xff);
+        header[41] = (byte) ((length >> 8) & 0xff);
+        header[42] = (byte) ((length >> 16) & 0xff);
+        header[43] = (byte) ((length >> 24) & 0xff);
         return true;
     }
 
-    public byte[] getHeader(){
+    public byte[] getHeader() {
         return header;
     }
 

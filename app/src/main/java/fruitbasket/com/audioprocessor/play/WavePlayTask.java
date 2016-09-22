@@ -2,11 +2,11 @@ package fruitbasket.com.audioprocessor.play;
 
 import android.util.Log;
 
-import fruitbasket.com.audioprocessor.Condition;
-import fruitbasket.com.audioprocessor.waveProducer.WaveProducer;
+import fruitbasket.com.audioprocessor.AppCondition;
 import fruitbasket.com.audioprocessor.waveProducer.WaveType;
 
 /**
+ * 播放声波的任务
  * Created by Study on 28/06/2016.
  */
 public class WavePlayTask implements Runnable {
@@ -19,7 +19,7 @@ public class WavePlayTask implements Runnable {
     private int sampleRate;//设备实际发出声音的频率
 
     public WavePlayTask(WaveType waveType,int waveRate){
-        this(waveType,waveRate,Condition.SIMPLE_RATE_CD);
+        this(waveType,waveRate, AppCondition.DEFAULE_SIMPLE_RATE);
     }
 
     public WavePlayTask(WaveType waveType,int waveRate,int sampleRate){

@@ -1,8 +1,8 @@
 package fruitbasket.com.audioprocessor.play;
 
 /**
- * Created by Study on 27/06/2016.
  * 用于描述音频输出（播放音频）的目标位置
+ * Created by Study on 27/06/2016.
  */
  public class AudioOutConfig {
 

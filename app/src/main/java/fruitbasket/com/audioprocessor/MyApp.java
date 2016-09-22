@@ -11,7 +11,7 @@ import java.io.File;
  *
  */
 final public class MyApp extends Application {
-	private static final String TAG="MyAPP";
+	private static final String TAG=MyApp.class.toString();
 	
 	@Override
 	public void onCreate(){
@@ -19,7 +19,7 @@ final public class MyApp extends Application {
 		Log.d(TAG,"onCreate()");
 		
 		//makes the main directroy of the application
-		File appDirectroy=new File(Condition.APP_FILE_DIR);
+		File appDirectroy=new File(AppCondition.APP_FILE_DIR);
 		appDirectroy.mkdirs();
 	}
 	
