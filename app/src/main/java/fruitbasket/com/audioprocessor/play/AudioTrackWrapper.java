@@ -134,7 +134,10 @@ public class AudioTrackWrapper {
 			audioTrack.stop();
 		}
 	}
-	
+
+	/**
+	 * 执行本方法，以释放资源
+	 */
 	public void releaseResource(){
 		if(audioTrack !=null){
 			audioTrack.release();

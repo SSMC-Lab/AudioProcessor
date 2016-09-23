@@ -2,13 +2,15 @@ package fruitbasket.com.audioprocessor;
 
 import android.os.Environment;
 
+import java.io.File;
+
 final public class AppCondition {
 	private static final AppCondition APP_CONDITION =new AppCondition();
 
 	/*
 	App的根目录
 	 */
-	public static final String APP_FILE_DIR=Environment.getExternalStorageDirectory()+"/AudioProcessor";
+	public static final String APP_FILE_DIR=Environment.getExternalStorageDirectory()+ File.separator+"AudioProcessor";
 	/*
 	默认的声音样本频率
 	 */

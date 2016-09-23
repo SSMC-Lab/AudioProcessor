@@ -52,7 +52,7 @@ public class AudioRecognition {
             return ;
         }
         Log.i(TAG,"bufferSize="+bufferSize);
-        bufferSize=adjustLength(bufferSize)*4;
+        bufferSize=adjustLength(bufferSize)*4;//这里乘以一个扩容系数。是为了增加单次录取音频数据，以提高频率识别的准确性。扩容系数必须是大于0的2的整数倍数
         Log.i(TAG,"after adjusted, bufferSize="+bufferSize);
         short[] buffer=new short[bufferSize];//用于存放录得的音频数据
 

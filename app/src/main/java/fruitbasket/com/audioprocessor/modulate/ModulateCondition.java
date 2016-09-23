@@ -12,7 +12,7 @@ final public class ModulateCondition {
      */
     static final int END=6;
     /*
-	支持声音编码的字符表
+	支持声音编码的字符表。目前的这个资格字符表仍在测试中
 	 */
     static final String CHAR_BOOK="12345";
     /*

@@ -56,7 +56,7 @@ public class MessageAudioPlayer {
                }
                audioTrack.play();
 
-               short [][]data=(new Encoder(text)).getAudioData(); ///可考虑将Encoder改用成单例模式
+               short [][]data=(new Encoder(text)).getAudioData();
                if(data!=null){
                    int i;
                    do{
@@ -66,6 +66,8 @@ public class MessageAudioPlayer {
                        audioTrack.write(new byte[44100],0,44100);///增加一段空白的音频数据，用作播放间隔，这是一个很不好的做法
                    }while(isRepeat&&///isRepeat的使用似乎存在问题
                            audioTrack.getPlayState()==AudioTrack.PLAYSTATE_PLAYING);
+
+                   audioTrack.stop();
                    audioTrack.flush();
                }
            }

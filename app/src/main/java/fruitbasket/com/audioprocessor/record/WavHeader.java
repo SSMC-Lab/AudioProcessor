@@ -189,5 +189,4 @@ final public class WavHeader {
     public byte[] getHeader() {
         return header;
     }
-
 }

@@ -93,6 +93,7 @@ public class AudioRecordWrapper {
 					}
 				}
 			}
+			//结束以上循环后就停止播放并释放资源
 			audioRecord.stop();
 			output.close();
 			audioRecord.release();

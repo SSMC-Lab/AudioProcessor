@@ -15,7 +15,7 @@ final public class RecordTask implements Runnable {
 
 	public void stopRecording(){
 		if(audioRecordWrapper !=null){
-			audioRecordWrapper.stopRecoding();
+			audioRecordWrapper.stopRecoding();//当audioRecordWrapper停止播放后就会自动释放资源
 			audioRecordWrapper =null;
 		}
 	}

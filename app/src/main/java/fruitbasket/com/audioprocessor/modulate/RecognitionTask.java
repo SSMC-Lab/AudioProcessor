@@ -50,7 +50,7 @@ final public class RecognitionTask implements Runnable {
 
     public void stop(){
         if(audioRecognition!=null){
-            audioRecognition.stop();
+            audioRecognition.stop();//当audioRecognition停止后就会自动释放资源
             audioRecognition=null;
         }
     }
