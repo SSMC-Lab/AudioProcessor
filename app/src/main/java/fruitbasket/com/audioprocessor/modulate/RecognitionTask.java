@@ -22,6 +22,10 @@ final public class RecognitionTask implements Runnable {
         return handler;
     }
 
+    /**
+     * 开始执行本任务前，必须执行本方法，以准备相关的资源
+     * @return
+     */
     public boolean prepare(){
         if(handler!=null){
             audioRecognition=new AudioRecognition();

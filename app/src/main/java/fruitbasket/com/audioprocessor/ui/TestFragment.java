@@ -228,6 +228,10 @@ public class TestFragment extends Fragment {
             switch(view.getId()){
                 case R.id.wave_producer:
                     if(((ToggleButton)view).isChecked()){
+
+                        stopSendingText();
+                        sendText.setChecked(false);
+
                         startPlayingWave();
                     }
                     else{
@@ -237,6 +241,10 @@ public class TestFragment extends Fragment {
 
                 case R.id.send_text:
                     if(((ToggleButton)view).isChecked()){
+
+                        stopPlayingWave();
+                        waveProducer.setChecked(false);
+
                         startSendingText();
                     }
                     else{
@@ -246,6 +254,9 @@ public class TestFragment extends Fragment {
 
                 case R.id.record:
                     if(((ToggleButton)view).isChecked()){
+                        stopFrequenceDetect();
+                        frequenceDectector.setChecked(false);
+
                         startRecord();
                     }
                     else{
@@ -255,6 +266,9 @@ public class TestFragment extends Fragment {
 
                 case R.id.frequence_dectector:
                     if(((ToggleButton)view).isChecked()){
+                        stopRecord();
+                        record.setChecked(false);
+
                         startFrequenceDetect();
                     }
                     else{

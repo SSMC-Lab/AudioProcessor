@@ -17,20 +17,19 @@ import fruitbasket.com.audioprocessor.waveProducer.WaveType;
 /**
  * 执行录制音频和播放音频操作的服务
  */
-///这里可能会引发多个线程同时播放声音的问题
-///多次调用播放同一声音方法时可能能会出问题
 public class AudioService extends Service {
 	private static final String TAG=AudioService.class.toString();
 
 	private AudioOutConfig audioOutConfig;
+	private Handler handler;
+
+	private boolean isPlaying=false;
+	private boolean isRecording=false;
 
 	private WavePlayTask wavePlayTask;
 	private RecordTask recordTask;
 	private RecognitionTask recognitionTask;
-
 	private MessageAudioPlayer messageAudioPlayer;
-
-	private Handler handler;
 
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -41,6 +40,8 @@ public class AudioService extends Service {
 	public void onCreate(){
 		super.onCreate();
 		Log.d(TAG,"onCreate()");
+		isPlaying=false;
+		isRecording=false;
 	}
 	
 	@Override
@@ -50,10 +51,11 @@ public class AudioService extends Service {
 		//在服务结束时，必须结束所有任务
 		stopPlayingWave();
 		stopSendingText();
-
 		if(messageAudioPlayer !=null){
 			messageAudioPlayer.releaseResource();
 		}
+		stopRecognition();
+
 		super.onDestroy();
 	}
 
@@ -66,6 +68,11 @@ public class AudioService extends Service {
 	}
 
 	public void startPlayingWave(WaveType waveType,int waveRate,int sampleRate){
+		Log.i(TAG,"startPlayingWave()");
+		if(isPlaying){
+			stopPlayingWave();
+			stopSendingText();
+		}
 		wavePlayTask=new WavePlayTask(waveType,waveRate,sampleRate,audioOutConfig);
 		new Thread(wavePlayTask).start();
 	}
@@ -79,6 +86,10 @@ public class AudioService extends Service {
 
 	public void startSendingText(){
 		Log.i(TAG,"startSendingText()");
+		if(isPlaying){
+			stopPlayingWave();
+			stopSendingText();
+		}
 		if(messageAudioPlayer ==null){
 			messageAudioPlayer =new MessageAudioPlayer();
 		}
@@ -94,6 +105,10 @@ public class AudioService extends Service {
 
 	public void startRecord(){
 		Log.i(TAG,"startRecord()");
+		if(isRecording){
+			stopRecord();
+			stopRecognition();
+		}
 		recordTask=new RecordTask();
 		new Thread(recordTask).start();
 	}
@@ -107,6 +122,10 @@ public class AudioService extends Service {
 
 	public void startRecognition(){
 		Log.i(TAG,"startRecognition()");
+		if(isRecording){
+			stopRecord();
+			stopRecognition();
+		}
 		recognitionTask=new RecognitionTask();
         recognitionTask.setHandler(handler);
 		recognitionTask.prepare();

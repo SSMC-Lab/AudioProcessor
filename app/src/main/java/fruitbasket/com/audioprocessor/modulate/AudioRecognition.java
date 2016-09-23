@@ -95,6 +95,7 @@ public class AudioRecognition {
                 pool.submit(task);
             }
         }
+        //在结束以上循环后就释放资源
         audioRecord.stop();
         audioRecord.release();
         pool.shutdown();
