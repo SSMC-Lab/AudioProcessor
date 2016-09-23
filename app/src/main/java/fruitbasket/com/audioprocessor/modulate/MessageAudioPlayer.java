@@ -15,6 +15,7 @@ public class MessageAudioPlayer {
     private static final String TAG="MessageAudioPlayer";
 
     private AudioTrack audioTrack;
+    private boolean isRepeat;
 
     public MessageAudioPlayer(){}
 
@@ -36,7 +37,6 @@ public class MessageAudioPlayer {
             Log.e(TAG,"play(): muteInterval<0||muteInterval>1000");
             return false;
         }
-
        new Thread(new Runnable() {
            @Override
            public void run() {
@@ -64,10 +64,11 @@ public class MessageAudioPlayer {
                            audioTrack.write(data[i],0,data[i].length);
                        }
                        audioTrack.write(new byte[44100],0,44100);///增加一段空白的音频数据，用作播放间隔，这是一个很不好的做法
-                   }while(isRepeat&&///isRepeat的使用似乎存在问题
+                   }while(isRepeat&&
                            audioTrack.getPlayState()==AudioTrack.PLAYSTATE_PLAYING);
-
-                   audioTrack.stop();
+                   if(isRepeat==false){
+                       audioTrack.stop();
+                   }
                    audioTrack.flush();
                }
            }
