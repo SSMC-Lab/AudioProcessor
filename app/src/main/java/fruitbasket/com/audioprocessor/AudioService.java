@@ -10,6 +10,7 @@ import android.util.Log;
 import fruitbasket.com.audioprocessor.modulate.MessageAudioPlayer;
 import fruitbasket.com.audioprocessor.modulate.RecognitionTask;
 import fruitbasket.com.audioprocessor.play.AudioOutConfig;
+import fruitbasket.com.audioprocessor.play.PCMPlayTask;
 import fruitbasket.com.audioprocessor.play.WavePlayTask;
 import fruitbasket.com.audioprocessor.record.RecordTask;
 import fruitbasket.com.audioprocessor.waveProducer.WaveType;
@@ -30,6 +31,7 @@ public class AudioService extends Service {
 	private RecordTask recordTask;
 	private RecognitionTask recognitionTask;
 	private MessageAudioPlayer messageAudioPlayer;
+	private PCMPlayTask pcmPlayTask;
 
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -72,6 +74,7 @@ public class AudioService extends Service {
 		if(isPlaying){
 			stopPlayingWave();
 			stopSendingText();
+			stopPlayPcm();
 		}
 		wavePlayTask=new WavePlayTask(waveType,waveRate,sampleRate,audioOutConfig);
 		new Thread(wavePlayTask).start();
@@ -89,6 +92,7 @@ public class AudioService extends Service {
 		if(isPlaying){
 			stopPlayingWave();
 			stopSendingText();
+			stopPlayPcm();
 		}
 		if(messageAudioPlayer ==null){
 			messageAudioPlayer =new MessageAudioPlayer();
@@ -136,6 +140,24 @@ public class AudioService extends Service {
 		Log.i(TAG,"stopRecognition()");
 		if(recognitionTask!=null){
 			recognitionTask.stop();
+		}
+	}
+
+	public void startPlayPcm(String pcmAudioPath){
+		Log.i(TAG,"startPlayPcm()");
+		if(isPlaying){
+			stopPlayingWave();
+			stopSendingText();
+			stopPlayPcm();
+		}
+		pcmPlayTask=new PCMPlayTask(pcmAudioPath);
+		new Thread(pcmPlayTask).start();
+	}
+
+	public void stopPlayPcm(){
+		Log.i(TAG,"stopPlayPcm()");
+		if(pcmPlayTask!=null){
+			pcmPlayTask.stopPlaying();
 		}
 	}
 

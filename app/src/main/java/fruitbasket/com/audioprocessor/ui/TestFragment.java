@@ -8,7 +8,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
+import android.support.v4.text.TextUtilsCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +21,8 @@ import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+
+import java.io.File;
 
 import fruitbasket.com.audioprocessor.AudioService;
 import fruitbasket.com.audioprocessor.AppCondition;
@@ -154,9 +159,9 @@ public class TestFragment extends Fragment {
         frequenceDectector.setOnClickListener(listener);
         frequenceTextView=(TextView)view.findViewById(R.id.frequence);
 
-        //playPcm=(ToggleButton)view.findViewById(R.id.play_pcm);
-        //playPcm.setOnClickListener(listener);
-
+        playPcm=(ToggleButton)view.findViewById(R.id.play_pcm);
+        playPcm.setOnClickListener(listener);
+        pcmAudioPath=(EditText)view.findViewById(R.id.pcm_audio_path);
     }
 
 
@@ -214,6 +219,26 @@ public class TestFragment extends Fragment {
         }
     }
 
+    private void startPlayPcm(){
+        Log.i(TAG,"startPlayPcm()");
+        if(audioService!=null){
+            String string=pcmAudioPath.getText().toString().trim();
+            if(TextUtils.isEmpty(string)==false){
+                audioService.startPlayPcm(AppCondition.APP_FILE_DIR+ File.separator+string);
+            }
+            else{
+                Log.w(TAG,"TextUtils.isEmpty(pcmAudioPath.getText().toString().trim())==true");
+            }
+        }
+    }
+
+    private void stopPlayPcm(){
+        Log.i(TAG,"stopPlayPcm()");
+        if(audioService!=null){
+            audioService.stopPlayPcm();
+        }
+    }
+
     private class MyHandler extends Handler {
 
         @Override
@@ -237,7 +262,9 @@ public class TestFragment extends Fragment {
                     if(((ToggleButton)view).isChecked()){
 
                         stopSendingText();
+                        stopPlayPcm();
                         sendText.setChecked(false);
+                        playPcm.setChecked(false);
 
                         startPlayingWave();
                     }
@@ -250,7 +277,9 @@ public class TestFragment extends Fragment {
                     if(((ToggleButton)view).isChecked()){
 
                         stopPlayingWave();
+                        stopPlayPcm();
                         waveProducer.setChecked(false);
+                        playPcm.setChecked(false);
 
                         startSendingText();
                     }
@@ -280,6 +309,20 @@ public class TestFragment extends Fragment {
                     }
                     else{
                         stopFrequenceDetect();
+                    }
+                    break;
+
+                case R.id.play_pcm:
+                    if(((ToggleButton)view).isChecked()){
+                        stopPlayingWave();
+                        stopSendingText();
+                        waveProducer.setChecked(false);
+                        sendText.setChecked(false);
+
+                        startPlayPcm();
+                    }
+                    else{
+                        stopPlayPcm();
                     }
                     break;
             }
