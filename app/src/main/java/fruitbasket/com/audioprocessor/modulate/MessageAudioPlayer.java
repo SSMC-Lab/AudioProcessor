@@ -63,7 +63,11 @@ public class MessageAudioPlayer {
                        for(i=0;i<data.length;++i){
                            audioTrack.write(data[i],0,data[i].length);
                        }
-                       audioTrack.write(new byte[44100],0,44100);///增加一段空白的音频数据，用作播放间隔，这是一个很不好的做法
+                       try {
+                           Thread.sleep(1000);
+                       } catch (InterruptedException e) {
+                           e.printStackTrace();
+                       }
                    }while(isRepeat&&
                            audioTrack.getPlayState()==AudioTrack.PLAYSTATE_PLAYING);
                    if(isRepeat==false){

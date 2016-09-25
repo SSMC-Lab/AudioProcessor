@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -39,6 +40,8 @@ public class TestFragment extends Fragment {
     private ToggleButton record;
     private ToggleButton frequenceDectector;
     private TextView frequenceTextView;
+    private ToggleButton playPcm;
+    private EditText pcmAudioPath;
 
     private int waveRate;
     private Handler handler;
@@ -150,6 +153,10 @@ public class TestFragment extends Fragment {
         frequenceDectector=(ToggleButton)view.findViewById(R.id.frequence_dectector);
         frequenceDectector.setOnClickListener(listener);
         frequenceTextView=(TextView)view.findViewById(R.id.frequence);
+
+        //playPcm=(ToggleButton)view.findViewById(R.id.play_pcm);
+        //playPcm.setOnClickListener(listener);
+
     }
 
 
