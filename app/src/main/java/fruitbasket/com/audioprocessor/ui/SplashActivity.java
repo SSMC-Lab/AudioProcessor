@@ -30,7 +30,7 @@ public class SplashActivity extends Activity{
         mHandler.sendMessageDelayed(msg,3000);
     }
 
-    void goHome() {
+    private void goHome() {
         Intent intent = new Intent(SplashActivity.this, MainActivity.class);
         startActivity(intent);
         SplashActivity.this.finish();

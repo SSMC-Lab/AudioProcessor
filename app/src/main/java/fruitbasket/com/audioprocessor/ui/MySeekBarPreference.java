@@ -78,13 +78,13 @@ public class MySeekBarPreference extends DialogPreference implements
         mValueText = (TextView) view.findViewById(R.id.dialog_NOW);
         mValueText.setText(Integer.toString(mCurrentValue)+"kHZ");
 
-        builder.setView(view).setPositiveButton("确定",new DialogInterface.OnClickListener() {
+        builder.setView(view).setPositiveButton(this.getContext().getString(R.string.Yes),new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog,
                                 int which) {
                 sharedPreferences.edit().putInt(MySeekBarPreference.this.getKey(),mCurrentValue).commit();
             }
-        }).setNegativeButton("取消",new DialogInterface.OnClickListener() {
+        }).setNegativeButton(this.getContext().getString(R.string.No),new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog,
                                 int which) {

@@ -5,4 +5,11 @@
     <string name="wave_producer">wave producer : </string>
     <string name="frequency">%1$d K Hz</string>
     <string name="detect_frequency">%1$d Hz</string>
+
+    <string name="Yes">确定</string>
+    <string name="No">取消</string>
+
+    <string name="Setting">设置</string>
+    <string name="Stop_Playing">暂停播放</string>
+    <string name="Playing">播放音频</string>
 </resources>
