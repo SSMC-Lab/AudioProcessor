@@ -164,7 +164,6 @@ public class TestFragment extends Fragment {
         pcmAudioPath=(EditText)view.findViewById(R.id.pcm_audio_path);
     }
 
-
     private void startPlayingWave(){
         if(audioService!=null){
             audioService.startPlayingWave(WaveType.SIN, waveRate, AppCondition.DEFAULE_SIMPLE_RATE);
