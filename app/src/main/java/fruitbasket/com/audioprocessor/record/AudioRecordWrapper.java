@@ -5,10 +5,12 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -76,6 +78,9 @@ public class AudioRecordWrapper {
 					bufferSize);
 			audioRecord.startRecording();
 
+			///
+			//int shortSum=0;
+
 			isRecording = true;
 			while (isRecording) {
 				int readResult = audioRecord.read(buffer, 0, bufferSize);
@@ -90,13 +95,19 @@ public class AudioRecordWrapper {
 				else{
 					for(int i=0;i<readResult;i++){
 						output.writeShort(buffer[i]);
+						//shortSum++;
 					}
 				}
 			}
 			//结束以上循环后就停止播放并释放资源
 			audioRecord.stop();
+			output.flush();
 			output.close();
 			audioRecord.release();
+			audioRecord=null;
+
+			//Log.i(TAG,"shortSum="+shortSum);
+			//Log.i(TAG,"audioFile.lenght()="+audioFile.length());
 
 			//制作wav文件
 			///这里录得的wav文件存在问题
@@ -124,6 +135,7 @@ public class AudioRecordWrapper {
 			}
 			inputStream.close();
 			outputStream.close();*/
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
