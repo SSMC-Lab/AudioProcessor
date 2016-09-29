@@ -46,7 +46,10 @@ final public class AudioProcessorTask implements Runnable {
     public void run() {
         Log.i(TAG,"run()");
         if(audioData!=null) {
-            int frequency = FrequencyDetector.getFrequence(FFT.fft(audioData, true), AppCondition.DEFAULE_SIMPLE_RATE);
+            int frequency = FrequencyDetector.getFrequence(
+                    FFT.fft(audioData, true),
+                    AppCondition.DEFAULE_SIMPLE_RATE
+            );
             Log.i(TAG,"frequency="+frequency);
             if (handler != null) {
                 Message message = new Message();

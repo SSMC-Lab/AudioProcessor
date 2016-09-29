@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="fruitbasket.com.audioprocessor"
-    android:versionCode="4"
-    android:versionName="2.1.1">
+    android:versionCode="5"
+    android:versionName="2.6.0">
 
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>

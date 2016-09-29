@@ -1,5 +1,8 @@
 package fruitbasket.com.audioprocessor.record;
 
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+
 /**
  * 用于录音的任务
  */

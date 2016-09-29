@@ -79,7 +79,7 @@ public class AudioRecordWrapper {
 			audioRecord.startRecording();
 
 			///
-			//int shortSum=0;
+			//int shortSum=0;//记录audioRecord录取的样本数量
 
 			isRecording = true;
 			while (isRecording) {
