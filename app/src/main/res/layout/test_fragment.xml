@@ -97,6 +97,27 @@
             android:id="@+id/record"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
+
+        <RadioGroup
+            android:id="@+id/channel_in"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+            <RadioButton
+                android:id="@+id/channel_in_mono"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="mono"
+                android:checked="true" />
+
+            <RadioButton
+                android:id="@+id/channel_in_stereo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="stereo" />
+        </RadioGroup>
+
     </LinearLayout>
 
     <LinearLayout

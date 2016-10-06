@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.AudioFormat;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -43,6 +44,7 @@ public class TestFragment extends Fragment {
     private TextView textVeiwWaveRate;
     private ToggleButton sendText;
     private ToggleButton record;
+    private RadioGroup channelIn;
     private ToggleButton frequenceDectector;
     private TextView frequenceTextView;
     private ToggleButton playPcm;
@@ -154,6 +156,21 @@ public class TestFragment extends Fragment {
 
         record=(ToggleButton)view.findViewById(R.id.record);
         record.setOnClickListener(listener);
+
+        channelIn=(RadioGroup)view.findViewById(R.id.channel_in);
+        channelIn.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener(){
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch(checkedId){
+                    case R.id.channel_in_mono:
+                        audioService.setChannelIn(AudioFormat.CHANNEL_IN_MONO);
+                        break;
+                    case R.id.channel_in_stereo:
+                        audioService.setChannelIn(AudioFormat.CHANNEL_IN_STEREO);
+                        break;
+                }
+            }
+        });
 
         frequenceDectector=(ToggleButton)view.findViewById(R.id.frequence_dectector);
         frequenceDectector.setOnClickListener(listener);

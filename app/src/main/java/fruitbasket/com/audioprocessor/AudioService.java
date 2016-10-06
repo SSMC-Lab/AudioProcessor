@@ -2,6 +2,7 @@ package fruitbasket.com.audioprocessor;
 
 import android.app.Service;
 import android.content.Intent;
+import android.media.AudioFormat;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -22,6 +23,7 @@ public class AudioService extends Service {
 	private static final String TAG=AudioService.class.toString();
 
 	private AudioOutConfig audioOutConfig;
+	private int channelIn;
 	private Handler handler;
 
 	private boolean isPlaying=false;
@@ -42,6 +44,7 @@ public class AudioService extends Service {
 	public void onCreate(){
 		super.onCreate();
 		Log.d(TAG,"onCreate()");
+		setChannelIn(AudioFormat.CHANNEL_IN_MONO);
 		isPlaying=false;
 		isRecording=false;
 	}
@@ -114,6 +117,7 @@ public class AudioService extends Service {
 			stopRecognition();
 		}
 		recordTask=new RecordTask();
+		recordTask.setChannelIn(channelIn);
 		new Thread(recordTask).start();
 	}
 
@@ -175,7 +179,17 @@ public class AudioService extends Service {
 		}
 	}
 
-
+	public void setChannelIn(int channelIn){
+		if(channelIn== AudioFormat.CHANNEL_IN_STEREO){
+			this.channelIn=channelIn;
+		}
+		else{
+			/*这里直接限定channelIn的类型，即只能是AudioFormat.CHANNEL_IN_STEREO或
+			AudioFormat.CHANNEL_IN_MONO。这样可能会去引起不能使用其他channelIn类型的问题
+			*/
+			this.channelIn=AudioFormat.CHANNEL_IN_MONO;
+		}
+	}
 
 
 	public class RecordServiceBinder extends Binder{
