@@ -40,6 +40,7 @@ public class Encoder {
             return convertCodesToWaveRate();
         }
         else{
+            Log.e(TAG,"convertTextToCodes(text)==false");
             return null;
         }
     }
@@ -55,6 +56,7 @@ public class Encoder {
             codes.clear();
             codes.add(ModulateCondition.START);//插入编码的开始标记
             int textLength=text.length();
+
             for(int i=0;i<textLength;++i){
                 int index= ModulateCondition.CHAR_BOOK.indexOf(text.charAt(i));
                 if(index>-1){
@@ -63,8 +65,10 @@ public class Encoder {
                 }
                 else{ //如果text含有不存在CHAR_BOOK中的字符
                     state=false;
+                    break;
                 }
             }
+
             if(state){
                 codes.add(ModulateCondition.END);//插入编码的结束标记
             }

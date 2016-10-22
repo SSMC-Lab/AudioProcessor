@@ -12,8 +12,10 @@ import fruitbasket.com.audioprocessor.modulate.MessageAudioPlayer;
 import fruitbasket.com.audioprocessor.modulate.RecognitionTask;
 import fruitbasket.com.audioprocessor.play.AudioOutConfig;
 import fruitbasket.com.audioprocessor.play.PCMPlayTask;
+import fruitbasket.com.audioprocessor.play.WavPlayTask;
 import fruitbasket.com.audioprocessor.play.WavePlayTask;
 import fruitbasket.com.audioprocessor.record.RecordTask;
+import fruitbasket.com.audioprocessor.record.WavRecordTask;
 import fruitbasket.com.audioprocessor.waveProducer.WaveType;
 
 /**
@@ -34,6 +36,9 @@ public class AudioService extends Service {
 	private RecognitionTask recognitionTask;
 	private MessageAudioPlayer messageAudioPlayer;
 	private PCMPlayTask pcmPlayTask;
+
+	private WavPlayTask wavPlayTask;
+	private WavRecordTask wavRecordTask;
 
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -60,6 +65,8 @@ public class AudioService extends Service {
 			messageAudioPlayer.releaseResource();
 		}
 		stopRecognition();
+		stopRecord();
+		stopRecordWav();
 
 		super.onDestroy();
 	}
@@ -78,6 +85,7 @@ public class AudioService extends Service {
 			stopPlayingWave();
 			stopSendingText();
 			stopPlayPcm();
+			stopPlayWav();
 		}
 		wavePlayTask=new WavePlayTask(waveType,waveRate,sampleRate,audioOutConfig);
 		new Thread(wavePlayTask).start();
@@ -96,11 +104,13 @@ public class AudioService extends Service {
 			stopPlayingWave();
 			stopSendingText();
 			stopPlayPcm();
+			stopPlayWav();
 		}
 		if(messageAudioPlayer ==null){
 			messageAudioPlayer =new MessageAudioPlayer();
 		}
-        messageAudioPlayer.play("12345",true,1000);
+		///为了测试，直接设定了发送的文本。
+        messageAudioPlayer.play("11111",true,1000);
 	}
 
 	public void stopSendingText(){
@@ -115,6 +125,7 @@ public class AudioService extends Service {
 		if(isRecording){
 			stopRecord();
 			stopRecognition();
+			stopRecordWav();
 		}
 		recordTask=new RecordTask();
 		recordTask.setChannelIn(channelIn);
@@ -133,6 +144,7 @@ public class AudioService extends Service {
 		if(isRecording){
 			stopRecord();
 			stopRecognition();
+			stopRecordWav();
 		}
 		recognitionTask=new RecognitionTask();
         recognitionTask.setHandler(handler);
@@ -153,6 +165,7 @@ public class AudioService extends Service {
 			stopPlayingWave();
 			stopSendingText();
 			stopPlayPcm();
+			stopPlayWav();
 		}
 		pcmPlayTask=new PCMPlayTask(pcmAudioPath);
 		new Thread(pcmPlayTask).start();
@@ -162,6 +175,45 @@ public class AudioService extends Service {
 		Log.i(TAG,"stopPlayPcm()");
 		if(pcmPlayTask!=null){
 			pcmPlayTask.stopPlaying();
+		}
+	}
+
+	public void startPlayWav(String wavAudioPath){
+		Log.i(TAG,"startPlayWav()");
+		if(isPlaying){
+			stopPlayingWave();
+			stopSendingText();
+			stopPlayPcm();
+			stopPlayWav();
+		}
+		wavPlayTask=new WavPlayTask(wavAudioPath);
+		new Thread(wavPlayTask).start();
+	}
+
+	public void stopPlayWav(){
+		Log.i(TAG,"stopPlayWav()");
+		if(wavPlayTask!=null){
+			wavPlayTask.stopPlaying();
+		}
+	}
+
+	public void startRecordWav(){
+		Log.i(TAG,"startRecordWav()");
+		if(isRecording) {
+			stopRecordWav();
+			stopRecord();
+			stopRecognition();
+		}
+
+		Log.i(TAG,"set up a new WavRecordTask");
+		wavRecordTask=new WavRecordTask(channelIn);
+		new Thread(wavRecordTask).start();
+	}
+
+	public void stopRecordWav(){
+		Log.i(TAG,"stopRecordWav()");
+		if(wavRecordTask!=null){
+			wavRecordTask.stopRecording();
 		}
 	}
 

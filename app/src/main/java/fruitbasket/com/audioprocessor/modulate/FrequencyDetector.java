@@ -3,6 +3,10 @@ package fruitbasket.com.audioprocessor.modulate;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
+/**
+ * 本类用于检测声音信号的频率。
+ * 目前，在安静的环境下，频率的识别精度在+/- 3以内
+ */
 public class FrequencyDetector {
 
 	private static final FrequencyDetector instance=new FrequencyDetector();

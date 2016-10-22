@@ -1,6 +1,7 @@
 package fruitbasket.com.audioprocessor;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 
 final public class DataIOHelper {
 	private static final DataIOHelper dataIOHelper=new DataIOHelper();
@@ -16,6 +17,10 @@ final public class DataIOHelper {
 	 * @return  the file name
 	 */
 	public static String getRecordedFileName(String extensionName){
-		return AppCondition.APP_FILE_DIR+File.separator+System.currentTimeMillis()+"."+extensionName;
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+		return AppCondition.APP_FILE_DIR
+				+File.separator
+				+ df.format(System.currentTimeMillis())
+				+ "."+extensionName;
 	}
 }

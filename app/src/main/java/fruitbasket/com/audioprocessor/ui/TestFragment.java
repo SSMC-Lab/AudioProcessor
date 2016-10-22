@@ -50,6 +50,11 @@ public class TestFragment extends Fragment {
     private ToggleButton playPcm;
     private EditText pcmAudioPath;
 
+    private ToggleButton recordWav;
+    private RadioGroup wavchannelIn;
+    private ToggleButton playWav;
+    private EditText wavAudioPath;
+
     private int waveRate;
     private Handler handler;
 
@@ -106,7 +111,8 @@ public class TestFragment extends Fragment {
     }
 
     private void initializeViews(View view){
-        ToggleClickListener listener=new ToggleClickListener();
+        MyCheckedChangeListener mccListener=new MyCheckedChangeListener();
+        ToggleClickListener tcListener=new ToggleClickListener();
 
         channelOut=(RadioGroup)view.findViewById(R.id.channel_out);
         channelOut.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -126,7 +132,7 @@ public class TestFragment extends Fragment {
         });
 
         waveProducer =(ToggleButton)view.findViewById(R.id.wave_producer);
-        waveProducer.setOnClickListener(listener);
+        waveProducer.setOnClickListener(tcListener);
 
         textVeiwWaveRate =(TextView)view.findViewById(R.id.text_view_waverate);
 
@@ -152,33 +158,32 @@ public class TestFragment extends Fragment {
         textVeiwWaveRate.setText(getResources().getString(R.string.frequency,seekbarWaveRate.getProgress()));
 
         sendText=(ToggleButton)view.findViewById(R.id.send_text);
-        sendText.setOnClickListener(listener);
+        sendText.setOnClickListener(tcListener);
 
         record=(ToggleButton)view.findViewById(R.id.record);
-        record.setOnClickListener(listener);
+        record.setOnClickListener(tcListener);
 
         channelIn=(RadioGroup)view.findViewById(R.id.channel_in);
-        channelIn.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener(){
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch(checkedId){
-                    case R.id.channel_in_mono:
-                        audioService.setChannelIn(AudioFormat.CHANNEL_IN_MONO);
-                        break;
-                    case R.id.channel_in_stereo:
-                        audioService.setChannelIn(AudioFormat.CHANNEL_IN_STEREO);
-                        break;
-                }
-            }
-        });
+        channelIn.setOnCheckedChangeListener(mccListener);
 
         frequenceDectector=(ToggleButton)view.findViewById(R.id.frequence_dectector);
-        frequenceDectector.setOnClickListener(listener);
+        frequenceDectector.setOnClickListener(tcListener);
         frequenceTextView=(TextView)view.findViewById(R.id.frequence);
 
         playPcm=(ToggleButton)view.findViewById(R.id.play_pcm);
-        playPcm.setOnClickListener(listener);
+        playPcm.setOnClickListener(tcListener);
         pcmAudioPath=(EditText)view.findViewById(R.id.pcm_audio_path);
+
+        wavchannelIn=(RadioGroup)view.findViewById(R.id.wav_channel_in);
+        wavchannelIn.setOnCheckedChangeListener(mccListener);
+
+        recordWav=(ToggleButton)view.findViewById(R.id.record_wav);
+        recordWav.setOnClickListener(tcListener);
+
+        playWav=(ToggleButton)view.findViewById(R.id.play_wav);
+        playWav.setOnClickListener(tcListener);
+
+        wavAudioPath=(EditText)view.findViewById(R.id.wav_audio_path);
     }
 
     private void startPlayingWave(){
@@ -255,6 +260,40 @@ public class TestFragment extends Fragment {
         }
     }
 
+    private void startRecordWav(){
+        Log.i(TAG,"startRecordWav()");
+        if(audioService!=null){
+            audioService.startRecordWav();
+        }
+    }
+
+    private void stopRecordWav(){
+        Log.i(TAG,"stopRecordWav()");
+        if(audioService!=null){
+            audioService.stopRecordWav();
+        }
+    }
+
+    private void startPlayWav(){
+        Log.i(TAG,"startPlayWav()");
+        if(audioService!=null){
+            String string=wavAudioPath.getText().toString().trim();
+            if(TextUtils.isEmpty(string)==false){
+                audioService.startPlayWav(AppCondition.APP_FILE_DIR+ File.separator+string);
+            }
+            else{
+                Log.w(TAG,"TextUtils.isEmpty(wavAudioPath.getText().toString().trim())==true");
+            }
+        }
+    }
+
+    private void stopPlayWav(){
+        Log.i(TAG,"stopPlayWav()");
+        if(audioService!=null){
+            audioService.stopPlayWav();
+        }
+    }
+
     private class MyHandler extends Handler {
 
         @Override
@@ -269,6 +308,26 @@ public class TestFragment extends Fragment {
         }
     }
 
+    private class MyCheckedChangeListener implements RadioGroup.OnCheckedChangeListener{
+        @Override
+        public void onCheckedChanged(RadioGroup group, int checkedId) {
+            switch(checkedId){
+                case R.id.channel_in_mono:
+                    audioService.setChannelIn(AudioFormat.CHANNEL_IN_MONO);
+                    break;
+                case R.id.channel_in_stereo:
+                    audioService.setChannelIn(AudioFormat.CHANNEL_IN_STEREO);
+                    break;
+                case R.id.wav_channel_in_mono:
+                    audioService.setChannelIn(AudioFormat.CHANNEL_IN_MONO);
+                    break;
+                case R.id.wav_channel_in_stereo:
+                    audioService.setChannelIn(AudioFormat.CHANNEL_IN_STEREO);
+                    break;
+            }
+        }
+    }
+
     private class ToggleClickListener implements View.OnClickListener {
 
         @Override
@@ -276,11 +335,12 @@ public class TestFragment extends Fragment {
             switch(view.getId()){
                 case R.id.wave_producer:
                     if(((ToggleButton)view).isChecked()){
-
                         stopSendingText();
                         stopPlayPcm();
+                        stopPlayWav();
                         sendText.setChecked(false);
                         playPcm.setChecked(false);
+                        playWav.setChecked(false);
 
                         startPlayingWave();
                     }
@@ -294,8 +354,10 @@ public class TestFragment extends Fragment {
 
                         stopPlayingWave();
                         stopPlayPcm();
+                        stopPlayWav();
                         waveProducer.setChecked(false);
                         playPcm.setChecked(false);
+                        playWav.setChecked(false);
 
                         startSendingText();
                     }
@@ -308,6 +370,8 @@ public class TestFragment extends Fragment {
                     if(((ToggleButton)view).isChecked()){
                         stopFrequenceDetect();
                         frequenceDectector.setChecked(false);
+                        stopRecordWav();
+                        recordWav.setChecked(false);
 
                         startRecord();
                     }
@@ -319,7 +383,9 @@ public class TestFragment extends Fragment {
                 case R.id.frequence_dectector:
                     if(((ToggleButton)view).isChecked()){
                         stopRecord();
+                        stopRecordWav();
                         record.setChecked(false);
+                        recordWav.setChecked(false);
 
                         startFrequenceDetect();
                     }
@@ -332,13 +398,45 @@ public class TestFragment extends Fragment {
                     if(((ToggleButton)view).isChecked()){
                         stopPlayingWave();
                         stopSendingText();
+                        stopPlayWav();
                         waveProducer.setChecked(false);
                         sendText.setChecked(false);
+                        playWav.setChecked(false);
 
                         startPlayPcm();
                     }
                     else{
                         stopPlayPcm();
+                    }
+                    break;
+
+                case R.id.record_wav:
+                    if(((ToggleButton)view).isChecked()){
+                        stopFrequenceDetect();
+                        frequenceDectector.setChecked(false);
+                        stopRecord();
+                        record.setChecked(false);
+
+                        startRecordWav();
+                    }
+                    else{
+                        stopRecordWav();
+                    }
+                    break;
+
+                case R.id.play_wav:
+                    if(((ToggleButton)view).isChecked()){
+                        stopPlayingWave();
+                        stopSendingText();
+                        stopPlayPcm();
+                        waveProducer.setChecked(false);
+                        sendText.setChecked(false);
+                        playPcm.setChecked(false);
+
+                        startPlayWav();
+                    }
+                    else{
+                        stopPlayWav();
                     }
                     break;
             }

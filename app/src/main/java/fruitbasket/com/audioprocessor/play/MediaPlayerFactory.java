@@ -3,29 +3,28 @@ package fruitbasket.com.audioprocessor.play;
 import android.media.MediaPlayer;
 
 /**
- * 用于播放普通的音频
+ * 用于生产特定的MediaPlayer
  * Created by Study on 24/06/2016.
  */
-public class MediaPlayerWrapper {
-    private static final String TAG=MediaPlayerWrapper.class.toString();
+public class MediaPlayerFactory {
+    private static final String TAG=MediaPlayerFactory.class.toString();
 
     private AudioOutConfig audioOutConfig;
     private MediaPlayer mediaPlayer;
 
-    public MediaPlayerWrapper(){
+    public MediaPlayerFactory(){
         this(null);
     }
 
-    public MediaPlayerWrapper(AudioOutConfig audioOutConfig){
+    public MediaPlayerFactory(AudioOutConfig audioOutConfig){
         mediaPlayer=new MediaPlayer();
         setAudioOutConfig(audioOutConfig);
     }
 
-    public MediaPlayerWrapper(int channelOut){
+    public MediaPlayerFactory(int channelOut){
         mediaPlayer=new MediaPlayer();
         setChannelOut(channelOut);
     }
-
 
     public void setAudioOutConfig(AudioOutConfig audioOutConfig){
         this.audioOutConfig=audioOutConfig;
@@ -40,10 +39,6 @@ public class MediaPlayerWrapper {
             audioOutConfig.setChannelOut(channelOut);
         }
         adjustMediaPlayer();
-    }
-
-    public MediaPlayer getMediaPlayer(){
-        return mediaPlayer;
     }
 
     private void adjustMediaPlayer(){
@@ -61,5 +56,9 @@ public class MediaPlayerWrapper {
                     break;
             }
         }
+    }
+
+    public MediaPlayer createMediaPlayer(){
+        return mediaPlayer;
     }
 }

@@ -91,7 +91,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="record: "/>
+            android:text="record pcm: "/>
 
         <ToggleButton
             android:id="@+id/record"
@@ -156,6 +156,62 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0 Hz"/>
+    </LinearLayout>
+
+    <!--wav格式的声音数据处理-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="record wav: "/>
+
+        <ToggleButton
+            android:id="@+id/record_wav"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <RadioGroup
+            android:id="@+id/wav_channel_in"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+            <RadioButton
+                android:id="@+id/wav_channel_in_mono"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="mono"
+                android:checked="true" />
+
+            <RadioButton
+                android:id="@+id/wav_channel_in_stereo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="stereo" />
+        </RadioGroup>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="play wav:  "/>
+
+        <ToggleButton
+            android:id="@+id/play_wav"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/wav_audio_path"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
 </LinearLayout>

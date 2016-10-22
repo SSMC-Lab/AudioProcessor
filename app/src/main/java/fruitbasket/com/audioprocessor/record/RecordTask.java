@@ -37,7 +37,11 @@ final public class RecordTask implements Runnable {
 	@Override
 	public void run() {
 		audioRecordWrapper =new AudioRecordWrapper();
-		audioRecordWrapper.startRecording(AppCondition.DEFAULE_SIMPLE_RATE,channelIn,AudioFormat.ENCODING_PCM_16BIT);
+		audioRecordWrapper.startRecording(
+				AppCondition.DEFAULE_SIMPLE_RATE,
+				channelIn,
+				AudioFormat.ENCODING_PCM_16BIT
+		);
 	}
 
 	public void stopRecording(){
