@@ -19,8 +19,6 @@ final public class ModulateCondition {
     与字符表对应的声波频率编码表，其中第一个和最后一个元素分别和开始标记和结束标记对应
      */
     static final short[] WAVE_RATE_BOOK=new short[]{1422,1575, 1764, 2004, 2321, 2940,4410};
-
-
     /*
    Handler消息号码。表示要进行音频处理的消息
     */
@@ -29,6 +27,10 @@ final public class ModulateCondition {
     Bundler关键字。表示检测到的频率
      */
     public static final String KEY_FREQUENCY="key_frequency";
+    /*
+    Bundler关键字。表示检测到的字符
+     */
+    public static final String KEY_RECOGNIZE_CHAR ="key_recognize_char";
 
     private ModulateCondition(){}
 

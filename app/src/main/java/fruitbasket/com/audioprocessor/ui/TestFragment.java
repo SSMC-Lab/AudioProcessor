@@ -9,9 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
-import android.support.v4.text.TextUtilsCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,7 +44,8 @@ public class TestFragment extends Fragment {
     private ToggleButton record;
     private RadioGroup channelIn;
     private ToggleButton frequenceDectector;
-    private TextView frequenceTextView;
+    private TextView frequence;
+    private TextView recognizeCharTextView;
     private ToggleButton playPcm;
     private EditText pcmAudioPath;
 
@@ -168,7 +167,8 @@ public class TestFragment extends Fragment {
 
         frequenceDectector=(ToggleButton)view.findViewById(R.id.frequence_dectector);
         frequenceDectector.setOnClickListener(tcListener);
-        frequenceTextView=(TextView)view.findViewById(R.id.frequence);
+        frequence =(TextView)view.findViewById(R.id.frequence);
+        recognizeCharTextView=(TextView)view.findViewById(R.id.recognize_char);
 
         playPcm=(ToggleButton)view.findViewById(R.id.play_pcm);
         playPcm.setOnClickListener(tcListener);
@@ -244,7 +244,7 @@ public class TestFragment extends Fragment {
         Log.i(TAG,"startPlayPcm()");
         if(audioService!=null){
             String string=pcmAudioPath.getText().toString().trim();
-            if(TextUtils.isEmpty(string)==false){
+            if(!TextUtils.isEmpty(string)){
                 audioService.startPlayPcm(AppCondition.APP_FILE_DIR+ File.separator+string);
             }
             else{
@@ -278,7 +278,7 @@ public class TestFragment extends Fragment {
         Log.i(TAG,"startPlayWav()");
         if(audioService!=null){
             String string=wavAudioPath.getText().toString().trim();
-            if(TextUtils.isEmpty(string)==false){
+            if(!TextUtils.isEmpty(string)){
                 audioService.startPlayWav(AppCondition.APP_FILE_DIR+ File.separator+string);
             }
             else{
@@ -294,6 +294,7 @@ public class TestFragment extends Fragment {
         }
     }
 
+    ///MyHandler有时会工作不正常！！！
     private class MyHandler extends Handler {
 
         @Override
@@ -301,9 +302,16 @@ public class TestFragment extends Fragment {
             Log.i(TAG,"MyHandler.handlerMessage()");
             if(message.what== ModulateCondition.AUDIO_PROCESSOR){
                 Log.i(TAG,"message.what==ModulateCondition.AUDIO_PROCESSOR");
-                int frequency=message.getData().getInt(ModulateCondition.KEY_FREQUENCY);
+
+                Bundle bundle=message.getData();
+                int frequency=bundle.getInt(ModulateCondition.KEY_FREQUENCY);
                 Log.i(TAG,"frequency="+frequency);
-                frequenceTextView.setText(getResources().getString(R.string.detect_frequency,frequency));
+                frequence.setText(getResources().getString(R.string.detect_frequency,frequency));
+
+                char recognizeChar=bundle.getChar(ModulateCondition.KEY_RECOGNIZE_CHAR);
+                Log.i(TAG,"recognizeChar="+recognizeChar);
+                ///recognizeCharTextView.setText(getResources().getString(R.string.detect_char,recognizeChar));
+                recognizeCharTextView.setText("reconize char: "+recognizeChar);
             }
         }
     }

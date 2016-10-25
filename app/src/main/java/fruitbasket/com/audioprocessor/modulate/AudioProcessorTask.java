@@ -47,11 +47,32 @@ final public class AudioProcessorTask implements Runnable {
         Log.i(TAG,"run()");
         if(audioData!=null) {
             ///已转移到Decoder中处理
-            int frequency = FrequencyDetector.getFrequence(
+            final int frequency = FrequencyDetector.getFrequence(
                     FFT.fft(audioData, true),
                     AppCondition.DEFAULE_SIMPLE_RATE
             );
             Log.i(TAG,"frequency="+frequency);
+
+            char recognizeChar='!';
+            final int bookLength=ModulateCondition.WAVE_RATE_BOOK.length-2;//记录WAVE_RATE_BOOK包含声波频率的实际个数
+            final int errorRange=5;//定义一个误差范围
+            int standard;
+            int index;
+            int i;
+            //之所以这样控制循环范围，是因为不能使用WAVE_RATE_BOOK开始和结束的元素
+            for(i=1;i<=bookLength;i++){
+                standard=ModulateCondition.WAVE_RATE_BOOK[i];
+
+                if(frequency>=standard-errorRange
+                        &&frequency<=standard+errorRange){
+                    index=i-1;
+                    recognizeChar=ModulateCondition.CHAR_BOOK.charAt(index);
+                }
+                else{
+                    Log.i(TAG,"frequency detecting error");
+                }
+            }
+
 
             if (handler != null) {
                 Message message = new Message();
@@ -59,6 +80,7 @@ final public class AudioProcessorTask implements Runnable {
 
                 Bundle bundle = new Bundle();
                 bundle.putInt(ModulateCondition.KEY_FREQUENCY, frequency);
+                bundle.putChar(ModulateCondition.KEY_RECOGNIZE_CHAR,recognizeChar);
                 message.setData(bundle);
                 handler.sendMessage(message);
             }

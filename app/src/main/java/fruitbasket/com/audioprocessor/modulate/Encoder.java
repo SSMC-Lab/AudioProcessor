@@ -4,6 +4,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.ListIterator;
 
 import fruitbasket.com.audioprocessor.AppCondition;
 import fruitbasket.com.audioprocessor.waveProducer.WaveProducer;
@@ -51,10 +52,12 @@ public class Encoder {
      * @return true 如果转换成功
      */
     private boolean convertTextToCodes(String text){
-        boolean state=true;
+        boolean state;
         if (!TextUtils.isEmpty(text)) {
+            state=true;
             codes.clear();
-            codes.add(ModulateCondition.START);//插入编码的开始标记
+            ///为了测试单个字符的识别，先不插入开始和结束标记
+            ///codes.add(ModulateCondition.START);//插入编码的开始标记
             int textLength=text.length();
 
             for(int i=0;i<textLength;++i){
@@ -70,10 +73,15 @@ public class Encoder {
             }
 
             if(state){
-                codes.add(ModulateCondition.END);//插入编码的结束标记
+                ///为了测试单个字符的识别，先不插入开始和结束标记
+                ///codes.add(ModulateCondition.END);//插入编码的结束标记
             }
+            Log.i(TAG,"convertTextToCodes(): codes.size()=="+codes.size());
         }
-        Log.i(TAG,"convertTextToCodes(): codes.size()=="+codes.size());
+        else{
+            state=false;
+            Log.i(TAG,"TextUtils.isEmpty(text)==true");
+        }
         return state;
     }
 
@@ -82,10 +90,14 @@ public class Encoder {
      * @return
      */
     private short[][] convertCodesToWaveRate(){
+        Log.i(TAG,"convertCodesToWaveRate()");
+
         short[][] data=new short[codes.size()][];
-        for(int index:codes){
-            data[index]=WaveProducer.getSinWave(
-                    ModulateCondition.WAVE_RATE_BOOK[index],
+        ListIterator<Integer> listIterator=codes.listIterator();
+        int i=0;
+        while(listIterator.hasNext()){
+            data[i++]=WaveProducer.getSinWave(
+                    ModulateCondition.WAVE_RATE_BOOK[listIterator.next()],
                     AppCondition.DEFAULE_SIMPLE_RATE,
                     AppCondition.DEFAULE_SIMPLE_RATE/(1000/DEFAULT_DURATION)
             );

@@ -75,7 +75,7 @@ public class AudioRecognition {
                 return ;
             }
             else{
-                Log.d(TAG,"buffer.length="+buffer.length);
+                /*Log.d(TAG,"buffer.length="+buffer.length);
                 Log.d(TAG,"buffer[0]="+buffer[0]);
                 Log.d(TAG,"buffer[1]="+buffer[1]);
                 Log.d(TAG,"buffer[2]="+buffer[2]);
@@ -85,10 +85,9 @@ public class AudioRecognition {
                 Log.d(TAG,"buffer[buffer.length-4])="+buffer[buffer.length-4]);
                 Log.d(TAG,"buffer[buffer.length-3])="+buffer[buffer.length-3]);
                 Log.d(TAG,"buffer[buffer.length-2])="+buffer[buffer.length-2]);
-                Log.d(TAG,"buffer[buffer.length-1)="+buffer[buffer.length-1]);
+                Log.d(TAG,"buffer[buffer.length-1)="+buffer[buffer.length-1]);*/
 
                 //对录取得的数据进行处理
-                Log.i(TAG,"start a data processing");
                 AudioProcessorTask task=new AudioProcessorTask();
                 task.setHandler(handler);
                 task.setAudioData(buffer);

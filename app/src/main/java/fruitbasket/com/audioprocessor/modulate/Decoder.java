@@ -15,7 +15,6 @@ public class Decoder {
 
     public void Decoder(){}
 
-
     /**
      * 将一段声音信号解码成单个字符。注意，此声音信号只能包含单个字符
      * @reurn
@@ -26,22 +25,29 @@ public class Decoder {
             return '\u0000';
         }
         else {
-            int frequency = FrequencyDetector.getFrequence(
+            final int frequency = FrequencyDetector.getFrequence(
                     FFT.fft(audioData, true),
                     AppCondition.DEFAULE_SIMPLE_RATE
             );
+            Log.i(TAG,"frequency=="+frequency);
             return charOfFrequency(frequency);
         }
     }
 
+    /**
+     *
+     * @param frequency
+     * @return
+     */
     private char charOfFrequency(int frequency){
-        final int errorRange=5;
-        final int bookLength=ModulateCondition.WAVE_RATE_BOOK.length-1;
+
+        final int bookLength=ModulateCondition.WAVE_RATE_BOOK.length-2;//记录WAVE_RATE_BOOK包含声波频率的实际个数
+        final int errorRange=5;//定义一个误差范围
         int standard;
         int index;
         int i;
         //之所以这样控制循环范围，是因为不能使用WAVE_RATE_BOOK开始和结束的元素
-        for(i=1;i<bookLength;i++){
+        for(i=1;i<=bookLength;i++){
             standard=ModulateCondition.WAVE_RATE_BOOK[i];
 
             if(frequency-errorRange>=standard
@@ -52,7 +58,7 @@ public class Decoder {
         }
 
         //如果frequency无效
-        Log.w(TAG,"i>=bookLength");
+        Log.w(TAG,"i>=bookLength : frequency is invalid");
         return '\u0000';
     }
 }

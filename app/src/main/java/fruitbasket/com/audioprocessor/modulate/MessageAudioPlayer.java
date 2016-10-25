@@ -64,7 +64,7 @@ public class MessageAudioPlayer {
                            audioTrack.write(data[i],0,data[i].length);
                        }
                        try {
-                           Thread.sleep(1000);
+                           Thread.sleep(muteInterval);
                        } catch (InterruptedException e) {
                            e.printStackTrace();
                        }
