@@ -110,7 +110,7 @@ public class AudioService extends Service {
 			messageAudioPlayer =new MessageAudioPlayer();
 		}
 		///为了测试，直接设定了发送的文本。
-        messageAudioPlayer.play("11111",true,1000);
+        messageAudioPlayer.play("aaaaa",true,1000);
 	}
 
 	public void stopSendingText(){
