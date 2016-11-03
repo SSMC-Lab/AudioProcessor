@@ -1,18 +1,19 @@
-package fruitbasket.com.audioprocessor.modulate;
+package fruitbasket.com.audioprocessor.process;
 
 import android.os.Handler;
 import android.util.Log;
 
 /**
+ * 启动声音信息处理功能
  * Created by Study on 19/09/2016.
  */
-final public class RecognitionTask implements Runnable {
-    private static final String TAG="RecognitionTask";
+final public class AudioDataProcessTask implements Runnable {
+    private static final String TAG="AudioDataProcessTask";
 
     private Handler handler;
     private AudioRecognition audioRecognition;
 
-    public RecognitionTask(){}
+    public AudioDataProcessTask(){}
 
     public void setHandler(Handler handler){
         this.handler=handler;

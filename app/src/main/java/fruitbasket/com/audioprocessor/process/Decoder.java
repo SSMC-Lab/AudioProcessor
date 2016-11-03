@@ -1,16 +1,16 @@
-package fruitbasket.com.audioprocessor.modulate;
+package fruitbasket.com.audioprocessor.process;
 
-import android.text.method.NumberKeyListener;
 import android.util.Log;
 
 import fruitbasket.com.audioprocessor.AppCondition;
+import fruitbasket.com.audioprocessor.process.fft.FFT;
 
 /**
  * 将一段声音信号解码成文本
  * Created by Study on 20/10/2016.
  */
 
-public class Decoder {
+class Decoder {
     private static final String TAG="modulate.Decoder";
 
     public void Decoder(){}
@@ -19,18 +19,36 @@ public class Decoder {
      * 将一段声音信号解码成单个字符。注意，此声音信号只能包含单个字符
      * @reurn
      */
-    public char decode(short[] audioData){
+    public char decodeChar(short[] audioData){
         if(audioData==null){
             Log.e(TAG,"audioData==null");
             return '\u0000';
         }
         else {
-            final int frequency = FrequencyDetector.getFrequence(
+            /*final int frequency = FrequencyDetector.getSingleFrequence(
                     FFT.fft(audioData, true),
                     AppCondition.DEFAULE_SIMPLE_RATE
             );
             Log.i(TAG,"frequency=="+frequency);
-            return charOfFrequency(frequency);
+            return charOfFrequency(frequency);*/
+
+            return '\u0000';
+        }
+    }
+
+    /**
+     * 将一段声音信号解码成一个字符串
+     * @param audioData
+     * @return
+     */
+    public String decodeString(short[] audioData){
+        if(audioData==null){
+            Log.e(TAG,"audioData==null");
+            return null;
+        }
+        else{
+            ///
+            return null;
         }
     }
 
@@ -41,19 +59,19 @@ public class Decoder {
      */
     private char charOfFrequency(int frequency){
 
-        final int bookLength=ModulateCondition.WAVE_RATE_BOOK.length-2;//记录WAVE_RATE_BOOK包含声波频率的实际个数
+        final int bookLength= PCondition.WAVE_RATE_BOOK.length-2;//记录WAVE_RATE_BOOK包含声波频率的实际个数
         final int errorRange=5;//定义一个误差范围
         int standard;
         int index;
         int i;
         //之所以这样控制循环范围，是因为不能使用WAVE_RATE_BOOK开始和结束的元素
         for(i=1;i<=bookLength;i++){
-            standard=ModulateCondition.WAVE_RATE_BOOK[i];
+            standard= PCondition.WAVE_RATE_BOOK[i];
 
-            if(frequency-errorRange>=standard
-                    &&frequency+errorRange<=standard){
+            if(frequency>=standard-errorRange
+                    &&frequency<=standard+errorRange){
                 index=i-1;
-                return ModulateCondition.CHAR_BOOK.charAt(index);
+                return PCondition.CHAR_BOOK.charAt(index);
             }
         }
 

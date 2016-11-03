@@ -1,8 +1,7 @@
-package fruitbasket.com.audioprocessor.modulate;
+package fruitbasket.com.audioprocessor.process.fft;
 
 /**
- * @author Orlando Selenu
- *
+ * 快速傅里叶转换
  */
 final public class FFT {
     private static final FFT instance=new FFT();

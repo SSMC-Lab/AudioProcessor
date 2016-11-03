@@ -26,7 +26,7 @@ import java.io.File;
 import fruitbasket.com.audioprocessor.AudioService;
 import fruitbasket.com.audioprocessor.AppCondition;
 import fruitbasket.com.audioprocessor.R;
-import fruitbasket.com.audioprocessor.modulate.ModulateCondition;
+import fruitbasket.com.audioprocessor.process.PCondition;
 import fruitbasket.com.audioprocessor.play.AudioOutConfig;
 import fruitbasket.com.audioprocessor.waveProducer.WaveType;
 
@@ -300,15 +300,15 @@ public class TestFragment extends Fragment {
         @Override
         public void handleMessage(Message message){
             Log.i(TAG,"MyHandler.handlerMessage()");
-            if(message.what== ModulateCondition.AUDIO_PROCESSOR){
-                Log.i(TAG,"message.what==ModulateCondition.AUDIO_PROCESSOR");
+            if(message.what== PCondition.AUDIO_PROCESSOR){
+                Log.i(TAG,"message.what==PCondition.AUDIO_PROCESSOR");
 
                 Bundle bundle=message.getData();
-                int frequency=bundle.getInt(ModulateCondition.KEY_FREQUENCY);
+                int frequency=bundle.getInt(PCondition.KEY_FREQUENCY);
                 Log.i(TAG,"frequency="+frequency);
                 frequence.setText(getResources().getString(R.string.detect_frequency,frequency));
 
-                char recognizeChar=bundle.getChar(ModulateCondition.KEY_RECOGNIZE_CHAR);
+                char recognizeChar=bundle.getChar(PCondition.KEY_RECOGNIZE_CHAR);
                 Log.i(TAG,"recognizeChar="+recognizeChar);
                 ///recognizeCharTextView.setText(getResources().getString(R.string.detect_char,recognizeChar));
                 recognizeCharTextView.setText("reconize char: "+recognizeChar);

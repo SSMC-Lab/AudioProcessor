@@ -1,4 +1,4 @@
-package fruitbasket.com.audioprocessor.modulate;
+package fruitbasket.com.audioprocessor.process;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -11,7 +11,7 @@ import fruitbasket.com.audioprocessor.AppCondition;
 /**
  * 用于播放音频信息
  */
-public class MessageAudioPlayer {
+public final class MessageAudioPlayer {
     private static final String TAG="MessageAudioPlayer";
 
     private AudioTrack audioTrack;

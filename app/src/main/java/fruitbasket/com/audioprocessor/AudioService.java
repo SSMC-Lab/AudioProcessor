@@ -8,8 +8,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
-import fruitbasket.com.audioprocessor.modulate.MessageAudioPlayer;
-import fruitbasket.com.audioprocessor.modulate.RecognitionTask;
+import fruitbasket.com.audioprocessor.process.MessageAudioPlayer;
+import fruitbasket.com.audioprocessor.process.AudioDataProcessTask;
 import fruitbasket.com.audioprocessor.play.AudioOutConfig;
 import fruitbasket.com.audioprocessor.play.PCMPlayTask;
 import fruitbasket.com.audioprocessor.play.WavPlayTask;
@@ -33,7 +33,7 @@ public class AudioService extends Service {
 
 	private WavePlayTask wavePlayTask;
 	private RecordTask recordTask;
-	private RecognitionTask recognitionTask;
+	private AudioDataProcessTask audioDataProcessTask;
 	private MessageAudioPlayer messageAudioPlayer;
 	private PCMPlayTask pcmPlayTask;
 
@@ -110,7 +110,7 @@ public class AudioService extends Service {
 			messageAudioPlayer =new MessageAudioPlayer();
 		}
 		///为了测试，直接设定了发送的文本。
-        messageAudioPlayer.play("aaaaa",true,1000);
+        messageAudioPlayer.play("abcde",true,1000);
 	}
 
 	public void stopSendingText(){
@@ -146,16 +146,16 @@ public class AudioService extends Service {
 			stopRecognition();
 			stopRecordWav();
 		}
-		recognitionTask=new RecognitionTask();
-        recognitionTask.setHandler(handler);
-		recognitionTask.prepare();
-		new Thread(recognitionTask).start();
+		audioDataProcessTask =new AudioDataProcessTask();
+        audioDataProcessTask.setHandler(handler);
+		audioDataProcessTask.prepare();
+		new Thread(audioDataProcessTask).start();
 	}
 
 	public void stopRecognition(){
 		Log.i(TAG,"stopRecognition()");
-		if(recognitionTask!=null){
-			recognitionTask.stop();
+		if(audioDataProcessTask !=null){
+			audioDataProcessTask.stop();
 		}
 	}
 

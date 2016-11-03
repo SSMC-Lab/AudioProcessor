@@ -1,7 +1,7 @@
-package fruitbasket.com.audioprocessor.modulate;
+package fruitbasket.com.audioprocessor.process;
 
-final public class ModulateCondition {
-    private static final ModulateCondition condition=new ModulateCondition();
+final public class PCondition {
+    private static final PCondition condition=new PCondition();
 
     /*
     用于表示编码开始的标记
@@ -12,7 +12,7 @@ final public class ModulateCondition {
      */
     static final int END=97;
     /*
-	支持声音编码的字符表
+	支持声音编码的字符表。这里支持了ACS|| 32~127的字符
 	 */
     static final String CHAR_BOOK=" !\"#$%&'()*+'-./0123456789:j<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\u007F";
     /*
@@ -45,9 +45,9 @@ final public class ModulateCondition {
      */
     public static final String KEY_RECOGNIZE_CHAR ="key_recognize_char";
 
-    private ModulateCondition(){}
+    private PCondition(){}
 
-    public ModulateCondition getInstance(){
+    public PCondition getInstance(){
         return condition;
     }
 }

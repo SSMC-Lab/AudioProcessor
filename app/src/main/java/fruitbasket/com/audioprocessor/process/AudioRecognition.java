@@ -1,9 +1,8 @@
-package fruitbasket.com.audioprocessor.modulate;
+package fruitbasket.com.audioprocessor.process;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
@@ -15,7 +14,7 @@ import fruitbasket.com.audioprocessor.AppCondition;
 /**
  * 用于识别音频信息
  */
-public class AudioRecognition {
+final class AudioRecognition {
     private static final String TAG="AudioRecognition";
 
     private Handler handler;//赋予这个类更新用户界面的能力
@@ -51,8 +50,9 @@ public class AudioRecognition {
             Log.e(TAG,"recordingBufferSize==AudioRecord.ERROR");
             return ;
         }
+
         Log.i(TAG,"bufferSize="+bufferSize);
-        bufferSize=adjustLength(bufferSize)*4;//这里乘以一个扩容系数。是为了增加单次录取音频数据，以提高频率识别的准确性。扩容系数必须是大于0的2的整数倍数
+        bufferSize=adjustLength(bufferSize,AppCondition.DEFAULE_SIMPLE_RATE);
         Log.i(TAG,"after adjusted, bufferSize="+bufferSize);
         short[] buffer=new short[bufferSize];//用于存放录得的音频数据
 
@@ -75,8 +75,8 @@ public class AudioRecognition {
                 return ;
             }
             else{
-                /*Log.d(TAG,"buffer.length="+buffer.length);
-                Log.d(TAG,"buffer[0]="+buffer[0]);
+                Log.d(TAG,"buffer.length="+buffer.length);
+                /*Log.d(TAG,"buffer[0]="+buffer[0]);
                 Log.d(TAG,"buffer[1]="+buffer[1]);
                 Log.d(TAG,"buffer[2]="+buffer[2]);
                 Log.d(TAG,"buffer[3]="+buffer[3]);
@@ -88,7 +88,7 @@ public class AudioRecognition {
                 Log.d(TAG,"buffer[buffer.length-1)="+buffer[buffer.length-1]);*/
 
                 //对录取得的数据进行处理
-                AudioProcessorTask task=new AudioProcessorTask();
+                AudioRecognitionTask task=new AudioRecognitionTask();
                 task.setHandler(handler);
                 task.setAudioData(buffer);
                 pool.submit(task);
@@ -106,21 +106,28 @@ public class AudioRecognition {
     }
 
     /**
-     * 返回一个大于给定参数同时又是2的次幂的最小整数
+     * 对audioDataLength进行调整
      * @param audioDataLength 大于或等于0的整数
      * @return
      */
-    private static int adjustLength(int audioDataLength){
+    private static int adjustLength(int audioDataLength,int sampleRate){
         if(audioDataLength<=0){
             return 0;
         }
         else{
             int length=1;
+
+            //第一次调整。使length一个大于audioDataLength，又是2的次幂
             int factor=2;
             while(audioDataLength>length){
                 length*=factor;
             }
-            return length;
+
+            //第二次调整
+            while(length<(sampleRate/(1000/Encoder.DEFAULT_DURATION))){
+                length*=2;
+            }
+              return length;
         }
     }
 }

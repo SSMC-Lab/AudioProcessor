@@ -10,7 +10,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.support.annotation.IntegerRes;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -26,7 +25,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuInflater;
@@ -38,7 +36,7 @@ import java.util.List;
 import fruitbasket.com.audioprocessor.AppCondition;
 import fruitbasket.com.audioprocessor.AudioService;
 import fruitbasket.com.audioprocessor.R;
-import fruitbasket.com.audioprocessor.modulate.ModulateCondition;
+import fruitbasket.com.audioprocessor.process.PCondition;
 import fruitbasket.com.audioprocessor.play.AudioOutConfig;
 import fruitbasket.com.audioprocessor.waveProducer.WaveType;
 
@@ -263,7 +261,7 @@ public class MainFragment extends Fragment
 
         @Override
         public void handleMessage(Message message){
-            if(message.what== ModulateCondition.AUDIO_PROCESSOR){
+            if(message.what== PCondition.AUDIO_PROCESSOR){
 
             }
         }

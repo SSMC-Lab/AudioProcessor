@@ -1,13 +1,13 @@
-package fruitbasket.com.audioprocessor.modulate;
+package fruitbasket.com.audioprocessor.process;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
 
 /**
  * 本类用于检测声音信号的频率。
- * 目前，在安静的环境下，频率的识别精度在+/- 3以内
+ * 目前，在安静的环境下，频率的识别精度在+/- 5以内
  */
-public class FrequencyDetector {
+final class FrequencyDetector {
 
 	private static final FrequencyDetector instance=new FrequencyDetector();
 	
@@ -21,11 +21,11 @@ public class FrequencyDetector {
 	
 	/**
 	 * 根据对音频数据进行快速傅里叶变换的结果，筛选该音频包含的最主要的一个频率
-	 * @param fftData
+	 * @param fftData 对音频数据进行快速傅里叶变换的结果
 	 * @param sampleRate
 	 * @return
 	 */
-	public static int  getFrequence(short[] fftData,int sampleRate){
+	public static int getSingleFrequence(short[] fftData, int sampleRate){
 		
 		int halfLenght=fftData.length/2;
 		int index=0;
@@ -81,6 +81,21 @@ public class FrequencyDetector {
 
 		int frequence=(int)(((double)sampleRate/fftData.length)*index);
 		return frequence;
+	}
+
+	/**
+	 * 根据对音频数据进行快速傅里叶变换的结果，筛选该音频包含的主要的频率
+	 * @param fftData 对音频数据进行快速傅里叶变换的结果
+	 * @param sampleRate
+     * @return
+     */
+	public static int [] getFrequency(short[] fftData,int sampleRate){
+		int halfLenght=fftData.length/2;
+		int[] index;
+		int[] frequence;
+
+		///
+		return null;
 	}
 
 	/**
