@@ -2,8 +2,7 @@ package fruitbasket.com.audioprocessor.process;
 
 import android.util.Log;
 
-import fruitbasket.com.audioprocessor.AppCondition;
-import fruitbasket.com.audioprocessor.process.fft.FFT;
+import fruitbasket.com.audioprocessor.process.fft.STFT;
 
 /**
  * 将一段声音信号解码成文本
@@ -13,24 +12,34 @@ import fruitbasket.com.audioprocessor.process.fft.FFT;
 class Decoder {
     private static final String TAG="modulate.Decoder";
 
-    public void Decoder(){}
+    private STFT stft;
+
+
+    public void Decoder(){
+        Log.i(TAG,"Decoder()");
+        stft=new STFT(STFT.FFT_LENGTH_1024);
+    }
 
     /**
      * 将一段声音信号解码成单个字符。注意，此声音信号只能包含单个字符
      * @reurn
      */
     public char decodeChar(short[] audioData){
+        Log.i(TAG,"decodeChar()");
         if(audioData==null){
             Log.e(TAG,"audioData==null");
             return '\u0000';
         }
         else {
+            Log.i(TAG,"audioData!=null");
+            ///原来的处理方法，现暂时弃用
             /*final int frequency = FrequencyDetector.getSingleFrequence(
                     FFT.fft(audioData, true),
                     AppCondition.DEFAULE_SIMPLE_RATE
             );
             Log.i(TAG,"frequency=="+frequency);
             return charOfFrequency(frequency);*/
+
 
             return '\u0000';
         }
@@ -53,18 +62,18 @@ class Decoder {
     }
 
     /**
-     *
+     * 根据频率，返回对应的字符
      * @param frequency
      * @return
      */
-    private char charOfFrequency(int frequency){
+    private static char charOfFrequency(int frequency){
 
         final int bookLength= PCondition.WAVE_RATE_BOOK.length-2;//记录WAVE_RATE_BOOK包含声波频率的实际个数
         final int errorRange=5;//定义一个误差范围
         int standard;
         int index;
         int i;
-        //之所以这样控制循环范围，是因为不能使用WAVE_RATE_BOOK开始和结束的元素
+        //之所以这样控制循环范围，是因为不能使用WAVE_RATE_BOOK的开始和结束的元素
         for(i=1;i<=bookLength;i++){
             standard= PCondition.WAVE_RATE_BOOK[i];
 

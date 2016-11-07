@@ -19,11 +19,21 @@ import android.util.Log;
 
 import java.util.Arrays;
 
+import fruitbasket.com.audioprocessor.AppCondition;
+
 /**
  * Short Time Fourier Transform
  */
 public class STFT {
     private static final String TAG="STFT";
+
+    public static final int FFT_LENGTH_512=512;
+    public static final int FFT_LENGTH_1024=1024;
+    public static final int FFT_LENGTH_2048=2048;
+
+    public static final int FFT_AVERAGE_1=1;
+    public static final int FFT_AVERAGE_2=2;
+    public static final int FFT_AVERAGE_3=3;
 
     // data for frequency Analysis
     private double[] spectrumAmpOutCum;
@@ -56,6 +66,14 @@ public class STFT {
 
     public double maxAmpFreq = Double.NaN, maxAmpDB = Double.NaN;
 
+    public STFT(int fftLen){
+        init(fftLen, AppCondition.DEFAULE_SIMPLE_RATE,1,"Hanning");
+    }
+
+    public STFT(int fftLen,int sampleRate){
+        init(fftLen,sampleRate,1,"Hanning");
+    }
+
     public STFT(int fftlen, int sampleRate, String wndName) {
         init(fftlen, sampleRate, 1, wndName);
     }
@@ -72,6 +90,7 @@ public class STFT {
      * @param wndName
      */
     private void init(int fftLen, int sampleRate, int minFeedSize, String wndName) {
+        Log.i(TAG,"init()");
         if (minFeedSize <= 0) {
             throw new IllegalArgumentException("STFT::init(): should minFeedSize >= 1.");
         }
@@ -200,6 +219,7 @@ public class STFT {
      * @param dsLen 将要处理的数据的长度
      */
     public void feedData(short[] ds, int dsLen) {
+        Log.i(TAG,"feedData()");
         if (dsLen > ds.length) {
             Log.e(TAG, "dsLen > ds.length !");
             dsLen = ds.length;
@@ -207,8 +227,8 @@ public class STFT {
 
         int inLen = spectrumAmpIn.length;
         int outLen = spectrumAmpOut.length;
-        int dsPt = 0;           // input data point to be read
 
+        int dsPt = 0;           // input data point to be read
         while (dsPt < dsLen) {
             while (spectrumAmpPt < inLen && dsPt < dsLen) {
                 double s = ds[dsPt++] / 32768.0;//对输入的数据进行第一次预处理
@@ -238,12 +258,14 @@ public class STFT {
                 }
                 nAnalysed++;
 
-                //将spectrumAmpIn的后半元素复制到前半
+                //将spectrumAmpIn的后半段元素复制到前半段
                 // half overlap  (set spectrumAmpPt = 0 for no overlap)
                 int n2 = spectrumAmpIn.length / 2;
                 System.arraycopy(spectrumAmpIn, n2, spectrumAmpIn, 0, n2);
+
                 spectrumAmpPt = n2;
             }
+
         }
     }
 

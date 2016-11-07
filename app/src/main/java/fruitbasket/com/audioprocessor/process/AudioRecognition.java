@@ -18,15 +18,20 @@ final class AudioRecognition {
     private static final String TAG="AudioRecognition";
 
     private Handler handler;//赋予这个类更新用户界面的能力
-    private ExecutorService pool;
     private boolean isRecording =false;
+    AudioRecognitionTask task;
+    private ExecutorService pool;
 
     public AudioRecognition(){
+        task=new AudioRecognitionTask();
         pool= Executors.newSingleThreadExecutor();
     }
 
     public void setHandler(Handler handler){
         this.handler=handler;
+        if(task!=null){
+            task.setHandler(this.handler);
+        }
     }
 
     public Handler getHandler(){
@@ -88,8 +93,6 @@ final class AudioRecognition {
                 Log.d(TAG,"buffer[buffer.length-1)="+buffer[buffer.length-1]);*/
 
                 //对录取得的数据进行处理
-                AudioRecognitionTask task=new AudioRecognitionTask();
-                task.setHandler(handler);
                 task.setAudioData(buffer);
                 pool.submit(task);
             }
