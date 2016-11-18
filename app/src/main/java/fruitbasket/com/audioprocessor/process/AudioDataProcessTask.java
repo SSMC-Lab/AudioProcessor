@@ -30,7 +30,7 @@ final public class AudioDataProcessTask implements Runnable {
     public boolean prepare(){
         if(handler!=null){
             audioRecognition=new AudioRecognition();
-            audioRecognition.setHandler(handler);
+            audioRecognition.setHandler(handler);///有空要解决handler传递的问题
             return true;
         }
         else{

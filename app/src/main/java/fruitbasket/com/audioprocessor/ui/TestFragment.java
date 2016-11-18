@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 
 import fruitbasket.com.audioprocessor.AudioService;
 import fruitbasket.com.audioprocessor.AppCondition;
@@ -31,7 +32,7 @@ import fruitbasket.com.audioprocessor.play.AudioOutConfig;
 import fruitbasket.com.audioprocessor.waveProducer.WaveType;
 
 /**
- * Created by Study on 21/06/2016.
+ * Created by FruitBasket on 21/06/2016.
  */
 public class TestFragment extends Fragment {
     private static final String TAG="ui.TestFragment";
@@ -45,7 +46,7 @@ public class TestFragment extends Fragment {
     private RadioGroup channelIn;
     private ToggleButton frequenceDectector;
     private TextView frequence;
-    private TextView recognizeCharTextView;
+    private TextView recognizeTextView;
     private ToggleButton playPcm;
     private EditText pcmAudioPath;
 
@@ -82,7 +83,7 @@ public class TestFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        handler=new MyHandler();
+        handler=new MyHandler(this);
         intentToRecord=new Intent(getActivity(),AudioService.class);
         if(audioService ==null) {
             getActivity().bindService(intentToRecord, serviceConnection, Context.BIND_AUTO_CREATE);
@@ -168,7 +169,7 @@ public class TestFragment extends Fragment {
         frequenceDectector=(ToggleButton)view.findViewById(R.id.frequence_dectector);
         frequenceDectector.setOnClickListener(tcListener);
         frequence =(TextView)view.findViewById(R.id.frequence);
-        recognizeCharTextView=(TextView)view.findViewById(R.id.recognize_char);
+        recognizeTextView =(TextView)view.findViewById(R.id.recognize);
 
         playPcm=(ToggleButton)view.findViewById(R.id.play_pcm);
         playPcm.setOnClickListener(tcListener);
@@ -294,24 +295,34 @@ public class TestFragment extends Fragment {
         }
     }
 
-    ///MyHandler有时会工作不正常！！！
-    private class MyHandler extends Handler {
+    private static class MyHandler extends Handler {
+
+        private final WeakReference<TestFragment> mFragment;
+
+        public MyHandler(TestFragment fregment) {
+            mFragment = new WeakReference<TestFragment>(fregment);
+        }
 
         @Override
         public void handleMessage(Message message){
             Log.i(TAG,"MyHandler.handlerMessage()");
+            TestFragment fragment= mFragment.get();
             if(message.what== PCondition.AUDIO_PROCESSOR){
                 Log.i(TAG,"message.what==PCondition.AUDIO_PROCESSOR");
 
                 Bundle bundle=message.getData();
+
+                String recognizeString=bundle.getString(PCondition.KEY_RECOGNIZE_STRING);
+                Log.i(TAG,"recognizeString="+recognizeString);
+                fragment.recognizeTextView.setText("reconize : "+recognizeString);
+
                 int frequency=bundle.getInt(PCondition.KEY_FREQUENCY);
                 Log.i(TAG,"frequency="+frequency);
-                frequence.setText(getResources().getString(R.string.detect_frequency,frequency));
+                fragment.frequence.setText(fragment.getResources().getString(R.string.detect_frequency,frequency));
 
-                char recognizeChar=bundle.getChar(PCondition.KEY_RECOGNIZE_CHAR);
+                /*char recognizeChar=bundle.getChar(PCondition.KEY_RECOGNIZE_CHAR);
                 Log.i(TAG,"recognizeChar="+recognizeChar);
-                ///recognizeCharTextView.setText(getResources().getString(R.string.detect_char,recognizeChar));
-                recognizeCharTextView.setText("reconize char: "+recognizeChar);
+                recognizeTextView.setText("reconize : "+recognizeChar);*/
             }
         }
     }

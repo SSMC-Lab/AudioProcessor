@@ -18,20 +18,16 @@ final class AudioRecognition {
     private static final String TAG="AudioRecognition";
 
     private Handler handler;//赋予这个类更新用户界面的能力
-    private boolean isRecording =false;
-    AudioRecognitionTask task;
-    private ExecutorService pool;
+    private boolean isRecording =false;//指示是否正在录音
+    private Thread recognitionThread;///
+    private Decoder decoder;
 
     public AudioRecognition(){
-        task=new AudioRecognitionTask();
-        pool= Executors.newSingleThreadExecutor();
+        decoder=new Decoder();
     }
 
     public void setHandler(Handler handler){
         this.handler=handler;
-        if(task!=null){
-            task.setHandler(this.handler);
-        }
     }
 
     public Handler getHandler(){
@@ -68,6 +64,8 @@ final class AudioRecognition {
                 AudioFormat.ENCODING_PCM_16BIT,
                 bufferSize);
         audioRecord.startRecording();
+        recognitionThread=new Thread(new RecognitionTask(decoder,handler));
+        recognitionThread.start();
         isRecording =true;
         while(isRecording ==true){
             int readResult = audioRecord.read(buffer, 0, bufferSize);
@@ -81,31 +79,22 @@ final class AudioRecognition {
             }
             else{
                 Log.d(TAG,"buffer.length="+buffer.length);
-                /*Log.d(TAG,"buffer[0]="+buffer[0]);
-                Log.d(TAG,"buffer[1]="+buffer[1]);
-                Log.d(TAG,"buffer[2]="+buffer[2]);
-                Log.d(TAG,"buffer[3]="+buffer[3]);
-                Log.d(TAG,"buffer[4]="+buffer[4]);
-                Log.d(TAG,"buffer[buffer.length-5])="+buffer[buffer.length-5]);
-                Log.d(TAG,"buffer[buffer.length-4])="+buffer[buffer.length-4]);
-                Log.d(TAG,"buffer[buffer.length-3])="+buffer[buffer.length-3]);
-                Log.d(TAG,"buffer[buffer.length-2])="+buffer[buffer.length-2]);
-                Log.d(TAG,"buffer[buffer.length-1)="+buffer[buffer.length-1]);*/
-
                 //对录取得的数据进行处理
-                task.setAudioData(buffer);
-                pool.submit(task);
+                if(decoder.updateAudioData(buffer)==false){
+                    stop();
+                }
             }
         }
         //在结束以上循环后就释放资源
         audioRecord.stop();
         audioRecord.release();
-        pool.shutdown();
+
     }
 
     public void stop(){
         Log.i(TAG,"stop()");
         isRecording = false;
+        recognitionThread.interrupt();
     }
 
     /**

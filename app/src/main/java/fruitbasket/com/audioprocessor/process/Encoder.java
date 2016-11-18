@@ -24,7 +24,7 @@ class Encoder {
     private String text;
     private ArrayList<Integer> codes =new ArrayList<>();//存放字符在Condition.CHAR_BOOK中的编号，用于表示一段文本的编码。
 
-    public Encoder(String text){
+    Encoder(String text){
         setText(text);
     }
 
@@ -52,37 +52,27 @@ class Encoder {
      * @return true 如果转换成功
      */
     private boolean convertTextToCodes(String text){
-        boolean state;
         if (!TextUtils.isEmpty(text)) {
-            state=true;
             codes.clear();
-            ///为了测试单个字符的识别，先不插入开始和结束标记
-            ///codes.add(PCondition.START);//插入编码的开始标记
-            int textLength=text.length();
+            final int textLength=text.length();
+            int index;
 
             for(int i=0;i<textLength;++i){
-                int index= PCondition.CHAR_BOOK.indexOf(text.charAt(i));
+                index= PCondition.CHAR_BOOK.indexOf(text.charAt(i));
                 if(index>-1){
-                    codes.add(index+1);//index+1是因为声波频率编码表中第0个元素已经被用作开头标记
-                    Log.i(TAG,"convertTextToCodes(): index+1=="+(index+1));
+                    codes.add(index);
                 }
-                else{ //如果text含有不存在CHAR_BOOK中的字符
-                    state=false;
-                    break;
+                else{
+                    Log.w(TAG,"index<=-1 : invalid char '"+text.charAt(i)+"'");
+                    return false;
                 }
             }
-
-            if(state){
-                ///为了测试单个字符的识别，先不插入开始和结束标记
-                ///codes.add(PCondition.END);//插入编码的结束标记
-            }
-            Log.i(TAG,"convertTextToCodes(): codes.size()=="+codes.size());
         }
         else{
-            state=false;
-            Log.i(TAG,"TextUtils.isEmpty(text)==true");
+            Log.w(TAG,"TextUtils.isEmpty(text)==true : text is empty");
+            return false;
         }
-        return state;
+        return true;
     }
 
     /**
@@ -91,17 +81,31 @@ class Encoder {
      */
     private short[][] convertCodesToWaveRate(){
         Log.i(TAG,"convertCodesToWaveRate()");
+        final int time=1000;
 
-        short[][] data=new short[codes.size()][];
+        short[][] data=new short[codes.size()+2][];
+
+        data[0]=WaveProducer.getSinWave(
+                PCondition.WAVE_RATE_BOOK[PCondition.START_INDEX],
+                AppCondition.DEFAULE_SIMPLE_RATE,
+                AppCondition.DEFAULE_SIMPLE_RATE/(time/DEFAULT_DURATION)
+        );
+
         ListIterator<Integer> listIterator=codes.listIterator();
-        int i=0;
-        while(listIterator.hasNext()){
+        int i=1;
+        while(listIterator.hasNext()&&i<data.length-1){
             data[i++]=WaveProducer.getSinWave(
-                    PCondition.WAVE_RATE_BOOK[listIterator.next()],
+                    PCondition.WAVE_RATE_BOOK[listIterator.next()+1],
                     AppCondition.DEFAULE_SIMPLE_RATE,
-                    AppCondition.DEFAULE_SIMPLE_RATE/(1000/DEFAULT_DURATION)
+                    AppCondition.DEFAULE_SIMPLE_RATE/(time/DEFAULT_DURATION)
             );
         }
+
+        data[data.length-1]=WaveProducer.getSinWave(
+                PCondition.WAVE_RATE_BOOK[PCondition.END_INDEX],
+                AppCondition.DEFAULE_SIMPLE_RATE,
+                AppCondition.DEFAULE_SIMPLE_RATE/(time/DEFAULT_DURATION)
+        );
         return data;
     }
 }

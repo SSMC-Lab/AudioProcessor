@@ -110,7 +110,7 @@ public class AudioService extends Service {
 			messageAudioPlayer =new MessageAudioPlayer();
 		}
 		///为了测试，直接设定了发送的文本。
-        messageAudioPlayer.play("abcde",true,1000);
+        messageAudioPlayer.play("abcdefg",true,1000);
 	}
 
 	public void stopSendingText(){
@@ -216,7 +216,6 @@ public class AudioService extends Service {
 			wavRecordTask.stopRecording();
 		}
 	}
-
 
 	public void setAudioOutConfig(AudioOutConfig audioOutConfig){
 		this.audioOutConfig=audioOutConfig;

@@ -6,11 +6,11 @@ final public class PCondition {
     /*
     用于表示编码开始的标记
      */
-    static final int START=0;
+    static final int START_INDEX=0;
     /*
     用于表示编码结束的标记
      */
-    static final int END=97;
+    static final int END_INDEX=97;
     /*
 	支持声音编码的字符表。这里支持了ACS|| 32~127的字符
 	 */
@@ -19,8 +19,8 @@ final public class PCondition {
     与字符表对应的声波频率编码表，其中第一个和最后一个元素分别和开始标记和结束标记对应
      */
     static final short[] WAVE_RATE_BOOK=new short[]{
-            10000,
-            10100,10200,10300,10400,10500,10600,10700,10800,10900,11000,
+            10000,//对应开始标记
+            10100,10200,10300,10400,10500,10600,10700,10800,10900,11000,//对应CHAR_BOOK中前10个字符
             11100,11200,11300,11400,11500,11600,11700,11800,11900,12000,
             12100,12200,12300,12400,12500,12600,12700,12800,12900,13000,
             13100,13200,13300,13400,13500,13600,13700,13800,13900,14000,
@@ -30,7 +30,13 @@ final public class PCondition {
             17100,17200,17300,17400,17500,17600,17700,17800,17900,18000,
             18100,18200,18300,18400,18500,18600,18700,18800,18900,19000,
             19100,19200,19300,19400,19500,19600,
-            19700};
+            19700//对应结束标记
+    };
+
+    /*
+    进行声音通讯时，支持的最大传输字符个数
+     */
+    public static final int MAX_CHAR_NUM=20;
 
     /*
    Handler消息号码。表示要进行音频处理的消息
@@ -44,6 +50,8 @@ final public class PCondition {
     Bundler关键字。表示检测到的字符
      */
     public static final String KEY_RECOGNIZE_CHAR ="key_recognize_char";
+
+    public static final String KEY_RECOGNIZE_STRING="key_recognize_string";
 
     private PCondition(){}
 

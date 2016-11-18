@@ -104,10 +104,10 @@
             android:text="0 Hz"/>
 
         <TextView
-            android:id="@+id/recognize_char"
+            android:id="@+id/recognize"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="recognize_char"/>
+            android:text=""/>
     </LinearLayout>
 
     <LinearLayout

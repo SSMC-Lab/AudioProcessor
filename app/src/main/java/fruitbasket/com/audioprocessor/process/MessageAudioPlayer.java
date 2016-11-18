@@ -11,7 +11,7 @@ import fruitbasket.com.audioprocessor.AppCondition;
 /**
  * 用于播放音频信息
  */
-public final class MessageAudioPlayer {
+final public class MessageAudioPlayer {
     private static final String TAG="MessageAudioPlayer";
 
     private AudioTrack audioTrack;

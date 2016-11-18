@@ -1,149 +1,223 @@
 package fruitbasket.com.audioprocessor.process;
 
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
-import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
 
 import fruitbasket.com.audioprocessor.process.fft.STFT;
 
 /**
- *  将声音信号解码成文本。其解码方法与Encoder的编码方法对应
- * Created by FruitBasket on 2016/11/16.
+ * 用于检测声音信息的任务。
+ * 它将识别声音包含的主要频率，来得出声音信息
+ * Created by FruitBasket on 07/11/2016.
  */
+final class RecognitionTask implements Runnable {
+    private static final  String TAG=RecognitionTask.class.getName();
 
-final class Decoder {
-    private static final String TAG="process.Decoder";
-    private static final int INVALID_INDEX=-1;
-    /*
+    private Decoder decoder;
+    private Handler handler;//赋予这个任务更新用户界面的能力
+
+    public RecognitionTask(Decoder decoder,Handler handler){
+        this.decoder=decoder;
+        this.handler=handler;
+    }
+
+    public void setHandler(Handler handler){
+        this.handler=handler;
+    }
+
+    @Override
+    public void run() {
+        Log.i(TAG, "run()");
+        String decodeString= null;
+
+        try {
+            decodeString = decoder.decodeString();///
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return;
+        }
+
+        Log.i(TAG,"begin to put the decodeString to the screen");
+        if(handler!=null){
+            Message message = new Message();
+            message.what= PCondition.AUDIO_PROCESSOR;
+
+            Bundle bundle = new Bundle();
+            bundle.putString(PCondition.KEY_RECOGNIZE_STRING,decodeString);
+            message.setData(bundle);
+            handler.sendMessage(message);
+        }
+        else {
+            Log.w(TAG, "handler==null");
+        }
+    }
+
+
+
+
+
+    /*private static final int INVALID_INDEX=-1;
+    *//*
     指定声音检测的最大次数
-     */
+     *//*
     private static final int MAX_DECTECTION=15;
 
     private STFT stft;
+    private short[] audioData;//存放音频数据
 
-    private ArrayBlockingQueue<short[]> audioDataBuffer;//这个队列的使用仍然存在问题
     private ArrayList<Integer> temIndexs;//存放当前的声音信息识别结果，以在PCondition.WAVE_RATE_BOOK对应的元素位置表示
     private int[] decodeIndexs;//存放最优的声音信息识别结果，以在PCondition.WAVE_RATE_BOOK对应的元素位置表示
     private String decodeString;//存放最优的声音信息识别结果，以字符表示。
 
+    private boolean hasUpdateData;//指示是否更新了音频数据
+    private Handler handler;//赋予这个任务更新用户界面的能力
 
-    public Decoder(){
+    RecognitionTask(){
         stft=new STFT(STFT.FFT_LENGTH_1024);
-        audioDataBuffer=new ArrayBlockingQueue<short[]>(MAX_DECTECTION);
         temIndexs=new ArrayList<>();
     }
 
-    public boolean updateAudioData(short[] audioData){
-        //这里使用非同步阻塞的方式，是因为希望在队列满后就停止语音数据生产者线程
-        return audioDataBuffer.offer(audioData);
+    public void setHandler(Handler handler){
+        this.handler=handler;
     }
 
-    /**
-     * 解码音频数据得到信息，信息以字符串表示
-     * @return 表示信息的字符串
-     */
-    public String decodeString() throws InterruptedException {
+    public Handler getHandler(){
+        return handler;
+    }
+
+    public void updateAudioData(short[] audioData){
+        if(audioData!=null){
+            //注意，这里使用的是浅复制。这意味着在本类的外部修改参数，会影响本类内部的数据
+            this.audioData=audioData;
+            hasUpdateData=true;
+        }
+        else{
+            Log.w(TAG,"setAudioData(): audioData==null");
+        }
+    }
+
+    @Override
+    public void run() {
+        Log.i(TAG,"run()");
+        int index;//表示声音信息识别结果，以在PCondition.WAVE_RATE_BOOK对应的元素位置表示
         int detectionCounter=0;
+
         while(detectionCounter<MAX_DECTECTION){
-            stft.feedData(audioDataBuffer.take());//使用阻塞的方式取出语音数据；从队列中取出的元素值一定不会是null
+            while(hasUpdateData==false){
+                continue;///这里应该使用更先进的处理方法
+            }
+            hasUpdateData=false;
+
+            stft.feedData(audioData);
             stft.getSpectrumAmp();
             stft.calculatePeak();
 
-            int index = indexOfFrequency((int) stft.maxAmpFreq);//表示声音信息识别结果，以在PCondition.WAVE_RATE_BOOK对应的元素位置表示
-            if (index != INVALID_INDEX) {
-                if (index == PCondition.END_INDEX) {
-                    Log.i(TAG, "index==PCondition.END_INDEX");
-                    if (temIndexs.isEmpty() == false) {
-                        Log.i(TAG, "temIndexs.isEmpty()==false");
+            index=indexOfFrequency((int)stft.maxAmpFreq);
+            if(index!=INVALID_INDEX){
+                if(index==PCondition.END_INDEX){
+                    Log.i(TAG,"index==PCondition.END_INDEX");
+                    if(temIndexs.isEmpty()==false){
+                        Log.i(TAG,"temIndexs.isEmpty()==false");
                         ///去除多余的字符。这里使用的方法有待改进
-                        Log.i(TAG, "before remove useless chars, temIndexs=" + stringOfIndexs(toArray(temIndexs)));
+                        Log.i(TAG,"before remove useless chars, temIndexs="+stringOfIndexs(toArray(temIndexs)));
                         int i;
-                        ListIterator<Integer> listIterator = temIndexs.listIterator(temIndexs.size());
-                        while (listIterator.hasPrevious()) {
-                            i = listIterator.previousIndex();
-                            if (listIterator.previous() == PCondition.START_INDEX) {
+                        ListIterator<Integer> listIterator=temIndexs.listIterator(temIndexs.size());
+                        while(listIterator.hasPrevious()){
+                            i=listIterator.previousIndex();
+                            if(listIterator.previous()==PCondition.START_INDEX){
                                 temIndexs.remove(i);///应该改用LinkedListArray
-                                while (listIterator.hasPrevious()) {
+                                while(listIterator.hasPrevious()){
                                     temIndexs.remove(listIterator.previousIndex());
                                 }
                                 break;
                             }
                         }
-                        Log.i(TAG, "after it, temIndexs=" + stringOfIndexs(toArray(temIndexs)));
+                        Log.i(TAG,"after it, temIndexs="+stringOfIndexs(toArray(temIndexs)));
 
-                        Log.i(TAG, "before merge information, decodeIndexs=" + stringOfIndexs(decodeIndexs));
-                        decodeIndexs = merge(decodeIndexs, toArray(temIndexs));
-                        Log.i(TAG, "after it, decodeIndexs=" + stringOfIndexs(decodeIndexs));
+                        Log.i(TAG,"before merge information, decodeIndexs="+stringOfIndexs(decodeIndexs));
+                        decodeIndexs=merge(decodeIndexs,toArray(temIndexs));
+                        Log.i(TAG,"after it, decodeIndexs="+stringOfIndexs(decodeIndexs));
                         temIndexs.clear();
                     }
-                } else if (index == PCondition.START_INDEX) {
-                    Log.i(TAG, "index==PCondition.START_INDEX");
-                    if (temIndexs.isEmpty()) {
-                        Log.i(TAG, "temIndexs.isEmpty0==ture");
+                }
+                else if(index==PCondition.START_INDEX){
+                    Log.i(TAG,"index==PCondition.START_INDEX");
+                    if(temIndexs.isEmpty()){
+                        Log.i(TAG,"temIndexs.isEmpty0==ture");
                         temIndexs.add(index);
-                    } else {
+                    }
+                    else{
                         ///去除多余的字符。这里使用的方法有待改进
-                        Log.i(TAG, "before remove useless chars, temIndexs=" + stringOfIndexs(toArray(temIndexs)));
+                        Log.i(TAG,"before remove useless chars, temIndexs="+stringOfIndexs(toArray(temIndexs)));
                         int i;
-                        ListIterator<Integer> listIterator = temIndexs.listIterator(temIndexs.size());
-                        while (listIterator.hasPrevious()) {
-                            i = listIterator.previousIndex();
-                            if (listIterator.previous() == PCondition.START_INDEX) {
+                        ListIterator<Integer> listIterator=temIndexs.listIterator(temIndexs.size());
+                        while(listIterator.hasPrevious()){
+                            i=listIterator.previousIndex();
+                            if(listIterator.previous()==PCondition.START_INDEX){
                                 temIndexs.remove(i);
-                                while (listIterator.hasPrevious()) {
+                                while(listIterator.hasPrevious()){
                                     temIndexs.remove(listIterator.previousIndex());
                                 }
                             }
                         }
-                        Log.i(TAG, "after it, temIndexs=" + stringOfIndexs(toArray(temIndexs)));
+                        Log.i(TAG,"after it, temIndexs="+stringOfIndexs(toArray(temIndexs)));
 
-                        Log.i(TAG, "before merge information, decodeIndexs=" + stringOfIndexs(decodeIndexs));
-                        decodeIndexs = merge(decodeIndexs, toArray(temIndexs));
-                        Log.i(TAG, "after it, decodeIndexs=" + stringOfIndexs(decodeIndexs));
+                        Log.i(TAG,"before merge information, decodeIndexs="+stringOfIndexs(decodeIndexs));
+                        decodeIndexs=merge(decodeIndexs,toArray(temIndexs));
+                        Log.i(TAG,"after it, decodeIndexs="+stringOfIndexs(decodeIndexs));
                         temIndexs.clear();
                     }
-                } else {
-                    Log.i(TAG, "temIndexs.add(" + PCondition.CHAR_BOOK.charAt(index - 1) + ");");
+                }
+                else{
+                    Log.i(TAG,"temIndexs.add("+PCondition.CHAR_BOOK.charAt(index-1)+");");
                     temIndexs.add(index);
                 }
             }
             ++detectionCounter;
         }
 
-        /*
-        结束上述循环后的结果：
-        1.decodeIndexs得到正确的结果，temIndex有可能为空也有可能不空
-        2.decodeIndexs==null，但是temIndex！=null
-        3.temIndexs==null&&decodeIndexs==null
-         */
-        //分情况处理结果
-        if(temIndexs==null&&decodeIndexs==null){
-            Log.w(TAG,"temIndexs==null&&decodeIndexs==null : recognition fail");
-            return null;
+        if(decodeIndexs==null){
+            decodeIndexs=toArray(temIndexs);
         }
-
-        if (decodeIndexs == null) {
-            decodeIndexs = toArray(temIndexs);
-        }
-
         temIndexs.clear();
-        decodeString = stringOfIndexs(decodeIndexs);
-        Log.i(TAG, "decodeString=" + decodeString);
-        return decodeString;
+
+        Log.i(TAG,"begin to show the result of the recognition");
+        if(decodeIndexs!=null&&decodeIndexs.length>0){
+            decodeString=stringOfIndexs(decodeIndexs);
+            Log.i(TAG,"decodeString="+decodeString);
+            if(handler!=null){
+                Message message = new Message();
+                message.what= PCondition.AUDIO_PROCESSOR;
+
+                Bundle bundle = new Bundle();
+                bundle.putInt(PCondition.KEY_FREQUENCY,(int)stft.maxAmpFreq);
+                bundle.putString(PCondition.KEY_RECOGNIZE_STRING,decodeString);
+                message.setData(bundle);
+                handler.sendMessage(message);
+            }
+            else{
+                Log.w(TAG,"handler==null");
+            }
+        }
+        else{
+            Log.w(TAG,"decodeIndexs==null || decodeIndexs.length<=0 : decode error");
+        }
+
     }
 
-
-    /**
+    *//**
      *将声音信息融合在一起。
      *声音信息中的元素以PCondition.WAVE_BOOK对应的元素位置表示
      *目前这个方法尚不完善，有待改进
      * @param xArray 包含声音信息的数组
      * @param yArray 包含声音信息的数组
      * @return 返回一个数组，它包含了融合在一起的声音信息
-     */
+     *//*
     private static int[] merge(int[] xArray,int[] yArray){
         //特殊情况的处理
         //1.参数同时不合法
@@ -231,11 +305,11 @@ final class Decoder {
         return toArray(resultArray);
     }
 
-    /**
+    *//**
      * 根据频率，返回在PCondition.WAVE_BOOK对应的元素位置
      * @param frequency 频率
      * @return  对应的下标
-     */
+     *//*
     private static int indexOfFrequency(int frequency){
         final int bookLength= PCondition.WAVE_RATE_BOOK.length;
         final int errorRange=5;
@@ -249,15 +323,15 @@ final class Decoder {
             }
         }
         //如果frequency无效
-        Log.i(TAG,"i>=bookLength : frequency is invalid");
+        Log.w(TAG,"i>=bookLength : frequency is invalid");
         return INVALID_INDEX;
     }
 
-    /**
+    *//**
      *  返回指定的字符串
      * @param indexs 声音信息识别结果，以在PCondition.WAVE_RATE_BOOK对应的元素位置表示
      * @return 指定的字符串
-     */
+     *//*
     private static String stringOfIndexs(int[] indexs){
         if(indexs==null){
             return null;
@@ -274,11 +348,11 @@ final class Decoder {
         return tem.toString();
     }
 
-    /**
+    *//**
      * 进行ArrayList到int数组的转换。这里的转换方式有待改进
      * @param inArray
      * @return
-     */
+     *//*
     private static int[] toArray(ArrayList inArray){
         int[] array=new int[inArray.size()];
         ListIterator<Integer> listIterator=inArray.listIterator();
@@ -287,5 +361,5 @@ final class Decoder {
             array[i++]=(Integer)listIterator.next();
         }
         return array;
-    }
+    }*/
 }

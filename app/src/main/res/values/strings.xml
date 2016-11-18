@@ -5,7 +5,7 @@
     <string name="wave_producer">wave producer : </string>
     <string name="frequency">%1$d K Hz</string>
     <string name="detect_frequency">%1$d Hz</string>
-    <string name="detect_char">recognize char: %1$d </string>
+    <string name="detect_char">recognize: %1$d </string>
 
     <string name="Yes">确定</string>
     <string name="No">取消</string>
