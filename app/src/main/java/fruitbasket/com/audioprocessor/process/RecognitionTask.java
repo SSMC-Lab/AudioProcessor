@@ -36,7 +36,7 @@ final class RecognitionTask implements Runnable {
         String decodeString= null;
 
         try {
-            decodeString = decoder.decodeString();///
+            decodeString = decoder.decodeString();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return;
@@ -44,6 +44,7 @@ final class RecognitionTask implements Runnable {
 
         Log.i(TAG,"begin to put the decodeString to the screen");
         if(handler!=null){
+            Log.i(TAG,"handler!=null : handler is ok");
             Message message = new Message();
             message.what= PCondition.AUDIO_PROCESSOR;
 

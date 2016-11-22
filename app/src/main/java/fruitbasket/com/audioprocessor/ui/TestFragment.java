@@ -41,7 +41,8 @@ public class TestFragment extends Fragment {
     private ToggleButton waveProducer;
     private SeekBar seekbarWaveRate;
     private TextView textVeiwWaveRate;
-    private ToggleButton sendText;
+    private ToggleButton sendTextToggle;
+    private EditText sendText;
     private ToggleButton record;
     private RadioGroup channelIn;
     private ToggleButton frequenceDectector;
@@ -157,8 +158,9 @@ public class TestFragment extends Fragment {
         waveRate = seekbarWaveRate.getProgress()*1000;
         textVeiwWaveRate.setText(getResources().getString(R.string.frequency,seekbarWaveRate.getProgress()));
 
-        sendText=(ToggleButton)view.findViewById(R.id.send_text);
-        sendText.setOnClickListener(tcListener);
+        sendTextToggle =(ToggleButton)view.findViewById(R.id.send_text_toggle);
+        sendTextToggle.setOnClickListener(tcListener);
+        sendText=(EditText)view.findViewById(R.id.send_text);
 
         record=(ToggleButton)view.findViewById(R.id.record);
         record.setOnClickListener(tcListener);
@@ -202,7 +204,13 @@ public class TestFragment extends Fragment {
     private void startSendingText(){
         Log.i(TAG,"startSendingText()");
         if(audioService!=null){
-            audioService.startSendingText();
+            String string=sendText.getText().toString().trim();
+            if(TextUtils.isEmpty(string)==false){
+                audioService.startSendingText(string);
+            }
+            else{
+                Log.i(TAG,"TextUtils.isEmpty(string)==true : the string is empty");
+            }
         }
     }
 
@@ -357,7 +365,7 @@ public class TestFragment extends Fragment {
                         stopSendingText();
                         stopPlayPcm();
                         stopPlayWav();
-                        sendText.setChecked(false);
+                        sendTextToggle.setChecked(false);
                         playPcm.setChecked(false);
                         playWav.setChecked(false);
 
@@ -368,7 +376,7 @@ public class TestFragment extends Fragment {
                     }
                     break;
 
-                case R.id.send_text:
+                case R.id.send_text_toggle:
                     if(((ToggleButton)view).isChecked()){
 
                         stopPlayingWave();
@@ -419,7 +427,7 @@ public class TestFragment extends Fragment {
                         stopSendingText();
                         stopPlayWav();
                         waveProducer.setChecked(false);
-                        sendText.setChecked(false);
+                        sendTextToggle.setChecked(false);
                         playWav.setChecked(false);
 
                         startPlayPcm();
@@ -449,7 +457,7 @@ public class TestFragment extends Fragment {
                         stopSendingText();
                         stopPlayPcm();
                         waveProducer.setChecked(false);
-                        sendText.setChecked(false);
+                        sendTextToggle.setChecked(false);
                         playPcm.setChecked(false);
 
                         startPlayWav();

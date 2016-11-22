@@ -80,9 +80,15 @@
             android:text="send text"/>
 
         <ToggleButton
-            android:id="@+id/send_text"
+            android:id="@+id/send_text_toggle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/send_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 
     <LinearLayout

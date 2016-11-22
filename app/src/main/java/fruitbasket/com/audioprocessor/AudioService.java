@@ -98,7 +98,7 @@ public class AudioService extends Service {
 		}
 	}
 
-	public void startSendingText(){
+	public void startSendingText(String text){
 		Log.i(TAG,"startSendingText()");
 		if(isPlaying){
 			stopPlayingWave();
@@ -109,8 +109,7 @@ public class AudioService extends Service {
 		if(messageAudioPlayer ==null){
 			messageAudioPlayer =new MessageAudioPlayer();
 		}
-		///为了测试，直接设定了发送的文本。
-        messageAudioPlayer.play("abcdefg",true,1000);
+        messageAudioPlayer.play(text,true,500);
 	}
 
 	public void stopSendingText(){

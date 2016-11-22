@@ -64,6 +64,8 @@ final class AudioRecognition {
                 AudioFormat.ENCODING_PCM_16BIT,
                 bufferSize);
         audioRecord.startRecording();
+
+        boolean updateState=false;
         recognitionThread=new Thread(new RecognitionTask(decoder,handler));
         recognitionThread.start();
         isRecording =true;
@@ -78,9 +80,13 @@ final class AudioRecognition {
                 return ;
             }
             else{
-                Log.d(TAG,"buffer.length="+buffer.length);
                 //对录取得的数据进行处理
-                if(decoder.updateAudioData(buffer)==false){
+                try {
+                    updateState=decoder.updateAudioData(buffer);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                if(updateState==false){
                     stop();
                 }
             }
@@ -88,7 +94,6 @@ final class AudioRecognition {
         //在结束以上循环后就释放资源
         audioRecord.stop();
         audioRecord.release();
-
     }
 
     public void stop(){

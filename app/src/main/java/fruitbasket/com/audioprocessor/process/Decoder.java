@@ -3,6 +3,7 @@ package fruitbasket.com.audioprocessor.process;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.ListIterator;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -20,25 +21,35 @@ final class Decoder {
     /*
     指定声音检测的最大次数
      */
-    private static final int MAX_DECTECTION=15;
+    private static final int MAX_DECTECTION=50;
 
     private STFT stft;
 
-    private ArrayBlockingQueue<short[]> audioDataBuffer;//这个队列的使用仍然存在问题
+    private int updateCounter=0;
+    private ArrayBlockingQueue<short[]> audioDataBuffer;
+
     private ArrayList<Integer> temIndexs;//存放当前的声音信息识别结果，以在PCondition.WAVE_RATE_BOOK对应的元素位置表示
     private int[] decodeIndexs;//存放最优的声音信息识别结果，以在PCondition.WAVE_RATE_BOOK对应的元素位置表示
     private String decodeString;//存放最优的声音信息识别结果，以字符表示。
 
 
     public Decoder(){
-        stft=new STFT(STFT.FFT_LENGTH_1024);
+        stft=new STFT(STFT.FFT_LENGTH_2048);
         audioDataBuffer=new ArrayBlockingQueue<short[]>(MAX_DECTECTION);
         temIndexs=new ArrayList<>();
     }
 
-    public boolean updateAudioData(short[] audioData){
-        //这里使用非同步阻塞的方式，是因为希望在队列满后就停止语音数据生产者线程
-        return audioDataBuffer.offer(audioData);
+    public boolean updateAudioData(short[] audioData) throws InterruptedException {
+        if(updateCounter<MAX_DECTECTION){
+            ++updateCounter;
+            audioDataBuffer.put(audioData);
+            return true;
+        }
+        else{
+            updateCounter=0;
+            return false;
+        }
+
     }
 
     /**
@@ -55,38 +66,28 @@ final class Decoder {
             int index = indexOfFrequency((int) stft.maxAmpFreq);//表示声音信息识别结果，以在PCondition.WAVE_RATE_BOOK对应的元素位置表示
             if (index != INVALID_INDEX) {
                 if (index == PCondition.END_INDEX) {
-                    Log.i(TAG, "index==PCondition.END_INDEX");
                     if (temIndexs.isEmpty() == false) {
-                        Log.i(TAG, "temIndexs.isEmpty()==false");
                         ///去除多余的字符。这里使用的方法有待改进
-                        Log.i(TAG, "before remove useless chars, temIndexs=" + stringOfIndexs(toArray(temIndexs)));
                         int i;
                         ListIterator<Integer> listIterator = temIndexs.listIterator(temIndexs.size());
                         while (listIterator.hasPrevious()) {
                             i = listIterator.previousIndex();
                             if (listIterator.previous() == PCondition.START_INDEX) {
-                                temIndexs.remove(i);///应该改用LinkedListArray
+                                temIndexs.remove(i);
                                 while (listIterator.hasPrevious()) {
                                     temIndexs.remove(listIterator.previousIndex());
                                 }
                                 break;
                             }
                         }
-                        Log.i(TAG, "after it, temIndexs=" + stringOfIndexs(toArray(temIndexs)));
-
-                        Log.i(TAG, "before merge information, decodeIndexs=" + stringOfIndexs(decodeIndexs));
                         decodeIndexs = merge(decodeIndexs, toArray(temIndexs));
-                        Log.i(TAG, "after it, decodeIndexs=" + stringOfIndexs(decodeIndexs));
                         temIndexs.clear();
                     }
                 } else if (index == PCondition.START_INDEX) {
-                    Log.i(TAG, "index==PCondition.START_INDEX");
                     if (temIndexs.isEmpty()) {
-                        Log.i(TAG, "temIndexs.isEmpty0==ture");
                         temIndexs.add(index);
                     } else {
                         ///去除多余的字符。这里使用的方法有待改进
-                        Log.i(TAG, "before remove useless chars, temIndexs=" + stringOfIndexs(toArray(temIndexs)));
                         int i;
                         ListIterator<Integer> listIterator = temIndexs.listIterator(temIndexs.size());
                         while (listIterator.hasPrevious()) {
@@ -98,11 +99,7 @@ final class Decoder {
                                 }
                             }
                         }
-                        Log.i(TAG, "after it, temIndexs=" + stringOfIndexs(toArray(temIndexs)));
-
-                        Log.i(TAG, "before merge information, decodeIndexs=" + stringOfIndexs(decodeIndexs));
                         decodeIndexs = merge(decodeIndexs, toArray(temIndexs));
-                        Log.i(TAG, "after it, decodeIndexs=" + stringOfIndexs(decodeIndexs));
                         temIndexs.clear();
                     }
                 } else {
@@ -112,16 +109,18 @@ final class Decoder {
             }
             ++detectionCounter;
         }
+        //进行最后的信息合并
+        decodeIndexs=merge(decodeIndexs,toArray(temIndexs));
 
         /*
-        结束上述循环后的结果：
+        结束上述处理后的结果：
         1.decodeIndexs得到正确的结果，temIndex有可能为空也有可能不空
         2.decodeIndexs==null，但是temIndex！=null
         3.temIndexs==null&&decodeIndexs==null
          */
         //分情况处理结果
         if(temIndexs==null&&decodeIndexs==null){
-            Log.w(TAG,"temIndexs==null&&decodeIndexs==null : recognition fail");
+            Log.w(TAG,"temIndexs==null && decodeIndexs==null : recognition fail");
             return null;
         }
 
@@ -139,25 +138,31 @@ final class Decoder {
     /**
      *将声音信息融合在一起。
      *声音信息中的元素以PCondition.WAVE_BOOK对应的元素位置表示
-     *目前这个方法尚不完善，有待改进
      * @param xArray 包含声音信息的数组
      * @param yArray 包含声音信息的数组
      * @return 返回一个数组，它包含了融合在一起的声音信息
      */
     private static int[] merge(int[] xArray,int[] yArray){
+        Log.i(TAG,"merge() : before merge : "+stringOfIndexs(xArray)+" ; "+stringOfIndexs(yArray)+" ;");
         //特殊情况的处理
-        //1.参数同时不合法
-        if(xArray==null&&yArray==null){
-            return null;
-        }
-        //2.在参数数组长度小于2时，无法进行信息的合并
-        if(yArray!=null&&yArray.length<2){
-            return xArray;
-        }
-        else if(yArray!=null&&xArray.length<2){
+        //1
+        if(xArray==null){
+            Log.i(TAG,"merge() : after merge : "+stringOfIndexs(yArray)+" ;");
             return yArray;
         }
-        //3.如果两个参数相同
+        else if(yArray==null){
+            Log.i(TAG,"merge() : after merge : "+stringOfIndexs(xArray)+" ;");
+            return xArray;
+        }
+        else if(yArray.length<2){
+            Log.i(TAG,"merge() : after merge : "+stringOfIndexs(xArray)+" ;");
+            return xArray;
+        }
+        else if(xArray.length<2){
+            Log.i(TAG,"merge() : after merge : "+stringOfIndexs(yArray)+" ;");
+            return yArray;
+        }
+        //2.如果两个参数相同
         if(xArray.length==yArray.length){
             int i;
             for(i=0;i<xArray.length;++i){
@@ -228,6 +233,7 @@ final class Decoder {
                 }
             }
         }
+        Log.i(TAG,"merge() : after merge : "+stringOfIndexs(toArray(resultArray))+" ;");
         return toArray(resultArray);
     }
 
@@ -268,7 +274,7 @@ final class Decoder {
                 tem.append(PCondition.CHAR_BOOK.charAt(index-1));
             }
             else{
-                Log.w(TAG,"index==PCondition.START_INDEX || index=PCondition.END_INDEX");
+                Log.w(TAG,"index==PCondition.START_INDEX || index=PCondition.END_INDEX : add wrong index to the recognition result");
             }
         }
         return tem.toString();
