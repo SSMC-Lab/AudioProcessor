@@ -30,6 +30,8 @@ public class STFT {
     public static final int FFT_LENGTH_512=512;
     public static final int FFT_LENGTH_1024=1024;
     public static final int FFT_LENGTH_2048=2048;
+    public static final int FFT_LENGTH_4096=4096;
+    public static final int FFT_LENGTH_8192=8192;
 
     public static final int FFT_AVERAGE_1=1;
     public static final int FFT_AVERAGE_2=2;

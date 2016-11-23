@@ -29,13 +29,14 @@ final class Decoder {
     private ArrayBlockingQueue<short[]> audioDataBuffer;
 
     private ArrayList<Integer> temIndexs;//存放当前的声音信息识别结果，以在PCondition.WAVE_RATE_BOOK对应的元素位置表示
-    private int[] decodeIndexs;//存放最优的声音信息识别结果，以在PCondition.WAVE_RATE_BOOK对应的元素位置表示
+    private int[][] decodeIndexs;//存放最优的声音信息识别结果，以在PCondition.WAVE_RATE_BOOK对应的元素位置表示
     private String decodeString;//存放最优的声音信息识别结果，以字符表示。
 
 
     public Decoder(){
-        stft=new STFT(STFT.FFT_LENGTH_2048);
+        stft=new STFT(STFT.FFT_LENGTH_8192);
         audioDataBuffer=new ArrayBlockingQueue<short[]>(MAX_DECTECTION);
+        decodeIndexs=new int[3][];
         temIndexs=new ArrayList<>();
     }
 
@@ -80,7 +81,7 @@ final class Decoder {
                                 break;
                             }
                         }
-                        decodeIndexs = merge(decodeIndexs, toArray(temIndexs));
+                        merge(toArray(temIndexs));
                         temIndexs.clear();
                     }
                 } else if (index == PCondition.START_INDEX) {
@@ -99,7 +100,8 @@ final class Decoder {
                                 }
                             }
                         }
-                        decodeIndexs = merge(decodeIndexs, toArray(temIndexs));
+
+                        merge(toArray(temIndexs));
                         temIndexs.clear();
                     }
                 } else {
@@ -110,7 +112,7 @@ final class Decoder {
             ++detectionCounter;
         }
         //进行最后的信息合并
-        decodeIndexs=merge(decodeIndexs,toArray(temIndexs));
+        merge(toArray(temIndexs));
 
         /*
         结束上述处理后的结果：
@@ -124,16 +126,37 @@ final class Decoder {
             return null;
         }
 
-        if (decodeIndexs == null) {
-            decodeIndexs = toArray(temIndexs);
+        if (decodeIndexs[0] == null) {
+            decodeIndexs [0]= toArray(temIndexs);
         }
 
         temIndexs.clear();
-        decodeString = stringOfIndexs(decodeIndexs);
+        decodeString = stringOfIndexs(decodeIndexs[0]);
         Log.i(TAG, "decodeString=" + decodeString);
         return decodeString;
     }
 
+    private void merge(int[] array){
+        if(array==null){
+            return;
+        }
+        int i=0;
+        while(i<decodeIndexs.length){
+            if(decodeIndexs[i]==null){
+                decodeIndexs[i]=array;
+                break;
+            }
+            else if(array.length>decodeIndexs[i].length){
+                int j=decodeIndexs.length-1;
+                while(j>i){
+                    decodeIndexs[j]=decodeIndexs[j-1];
+                }
+                decodeIndexs[i]=array;
+                break;
+            }
+            ++i;
+        }
+    }
 
     /**
      *将声音信息融合在一起。
@@ -145,7 +168,7 @@ final class Decoder {
     private static int[] merge(int[] xArray,int[] yArray){
         Log.i(TAG,"merge() : before merge : "+stringOfIndexs(xArray)+" ; "+stringOfIndexs(yArray)+" ;");
         //特殊情况的处理
-        //1
+        //1.
         if(xArray==null){
             Log.i(TAG,"merge() : after merge : "+stringOfIndexs(yArray)+" ;");
             return yArray;
@@ -176,8 +199,9 @@ final class Decoder {
                 return resultArray;
             }
         }
+        return xArray.length>yArray.length? xArray:yArray;
 
-        ArrayList<Integer> resultArray=new ArrayList<>();
+        /*ArrayList<Integer> resultArray=new ArrayList<>();
         int xPt,yPt;//xArray和yArray的指针
         int xSameCounter,ySameCounter;//记录数组中连续连续相同元素的个数
         int maxSameCounter;//记录xSameCounter和ySameCounter的较大者;
@@ -215,6 +239,7 @@ final class Decoder {
                         resultArray.add(yArray[yPt+1]);
                     }
                     else if(yPt+2<yArray.length
+                            &&xPt<xArray.length-1
                             &&xArray[xPt+1]==yArray[yPt+2]
                             &&yArray[yPt+1]!=yArray[yPt+2]){//如果在中间处有信息可以合并
                         resultArray.add(xArray[xPt]);
@@ -234,7 +259,7 @@ final class Decoder {
             }
         }
         Log.i(TAG,"merge() : after merge : "+stringOfIndexs(toArray(resultArray))+" ;");
-        return toArray(resultArray);
+        return toArray(resultArray);*/
     }
 
     /**
