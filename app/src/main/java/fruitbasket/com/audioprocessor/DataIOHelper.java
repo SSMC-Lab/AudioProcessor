@@ -17,7 +17,7 @@ final public class DataIOHelper {
 	 * @return  the file name
 	 */
 	public static String getRecordedFileName(String extensionName){
-		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 		return AppCondition.APP_FILE_DIR
 				+File.separator
 				+ df.format(System.currentTimeMillis())
