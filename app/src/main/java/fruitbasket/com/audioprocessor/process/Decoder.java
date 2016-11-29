@@ -170,68 +170,71 @@ final class Decoder {
 
     /**
      * 根据最优的一些声音设备结果，取得最优的识别结果，并以字符串表示。
-     * 此函数有待改进
+     * 方式是：
+     * 1.先找到包含元素种类最多的那个识别结果
+     * 2.根据不同的结果，以确定识别结果中某个元素的连续出现次数
+     * @return 识别结果
      */
     private String getDecodeString(){
         Log.i(TAG,"getDecodeString()");
         for(int i=0;i<decodeIndexs.length;++i){
             Log.i(TAG,stringOfIndexs(decodeIndexs[i]));
         }
-        ArrayList<Integer> bestResult=new ArrayList<>();
-
-        int[] ptArray=new int[decodeIndexs.length];
-        int [] sameCounter=new int[decodeIndexs.length];
-        int[] sameNumberCounter=new int[decodeIndexs.length];
-
-        for(int i=0;i<ptArray.length;++i){
-            ptArray[i]=0;
-        }
-
-        //
-        int maxElement=0;
-        int maxElementIndex=0;
-        int[] elements=new int[decodeIndexs[0].length];
-        int pt=0;
         int i,j,k;
+
+        //找出在decodeIndexs中包含子元素种类数量最多的那个元素
+        int maxKind=0;//记录在decodeIndexs中的多个元素中，含有最多的子元素的种类数量
+        int maxKindIndex=0;//记录该元素的下标
+        int[] elements=new int[decodeIndexs[0].length];
+        int pt;
         for(i=0;i<decodeIndexs.length;++i){
             if(decodeIndexs[i]!=null){
                 pt=0;
                 elements[pt]=decodeIndexs[i][0];
                 for(j=1;j<decodeIndexs[i].length;++j){
 
-                    for(k=0;k<=pt;++k){
+                    for(k=0;k<=pt;++k){//检测decodeIndexs[i][j]是否已经存在于elements中
                         if(decodeIndexs[i][j]==elements[k]) {
                             break;
                         }
                     }
-                    if(k>pt){
+                    if(k>pt){//如不存在
                         elements[++pt]=decodeIndexs[i][j];
                     }
-
                 }
-                if(maxElement<pt+1){
-                    maxElement=pt+1;
-                    maxElementIndex=i;
+
+                if(maxKind<pt+1){
+                    maxKind=pt+1;
+                    maxKindIndex=i;
                 }
             }
         }
-        Log.i(TAG,"maxElementIndex=="+maxElementIndex);
+        Log.i(TAG,"maxElementIndex=="+maxKindIndex);
 
+        ArrayList<Integer> bestResult=new ArrayList<>();//存放最优的结果
+        int[] ptArray=new int[decodeIndexs.length];//指针数组，用作decodeIndexs中每个数组的指针
+        int [] sameCounter=new int[decodeIndexs.length];//对于每个子元素，记录decodeIndexs[i]在ptArray[i]位置含有的连续相同子元素的个数
+        int[] sameNumberCounter=new int[decodeIndexs.length];
 
         int charIndex=0;
-        int max,maxIndex;
+        int max;
+        int maxIndex;
+
+        for(i=0;i<ptArray.length;++i){
+            ptArray[i]=0;//ptArray[i]指着下一个将要被处理的元素
+        }
+
         while(ptArray[0]<decodeIndexs[0].length){
-            //Log.i(TAG,"ptArray[0]=="+ptArray[0]);
-            charIndex=decodeIndexs[maxElementIndex][ptArray[maxElementIndex]];//这里假设第一个数组包含所有的元素
-            for (i = 0; i < decodeIndexs.length; ++i) {
+            charIndex=decodeIndexs[maxKindIndex][ptArray[maxKindIndex]];
+            for (i = 0; i < decodeIndexs.length&&decodeIndexs[i]!=null; ++i) {
 
                 for (j = 0; j < sameCounter.length; ++j) {
                     sameCounter[i] = 0;
                 }
 
-                if(decodeIndexs[i]!=null
-                    &&ptArray[i] < decodeIndexs[i].length
+                if(ptArray[i] < decodeIndexs[i].length
                     &&decodeIndexs[i][ptArray[i]]==charIndex){
+
                     sameCounter[i]=1;
                     while (ptArray[i] < decodeIndexs[i].length - 1
                         &&decodeIndexs[i][ptArray[i]] == decodeIndexs[i][ptArray[i] + 1]) {
@@ -241,23 +244,24 @@ final class Decoder {
                     ptArray[i]++;
                 }
             }
-            ///
-            for(i=0;i<sameCounter.length;++i){
-                Log.i(TAG,"sameCounter["+i+"]=="+sameCounter[i]);
-            }
 
+            /*for(i=0;i<sameCounter.length;++i){
+                Log.i(TAG,"sameCounter["+i+"]=="+sameCounter[i]);
+            }*/
+
+            //统计结果
             for(i=0;i<sameNumberCounter.length;++i){
                 sameNumberCounter[i]=0;
             }
             for(int index:sameCounter){
                 sameNumberCounter[index]++;
             }
-            ///
-            for(i=0;i<sameNumberCounter.length;++i){
-                Log.i(TAG,"sameNumberCounter["+i+"]=="+sameNumberCounter[i]);
-            }
 
-            max=sameNumberCounter[1];
+            /*for(i=0;i<sameNumberCounter.length;++i){
+                Log.i(TAG,"sameNumberCounter["+i+"]=="+sameNumberCounter[i]);
+            }*/
+
+            max=sameNumberCounter[1];//不统计没出现的个数
             maxIndex=1;
             for(i=2;i<sameNumberCounter.length;++i){
                 if(max<sameNumberCounter[i]){
@@ -270,7 +274,6 @@ final class Decoder {
             for(i=0;i<maxIndex;++i){
                 bestResult.add(charIndex);
             }
-
         }
 
         return stringOfIndexs(toArray(bestResult));
