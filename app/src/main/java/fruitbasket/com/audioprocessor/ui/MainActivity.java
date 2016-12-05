@@ -10,7 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import fruitbasket.com.audioprocessor.R;
 
 public class MainActivity extends AppCompatActivity {
-
+    /**/
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
     private ViewPager mViewPager;
