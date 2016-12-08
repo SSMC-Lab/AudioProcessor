@@ -1,5 +1,6 @@
 package fruitbasket.com.audioprocessor.ui;
 
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -29,16 +30,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuInflater;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import fruitbasket.com.audioprocessor.AppCondition;
 import fruitbasket.com.audioprocessor.AudioService;
+import fruitbasket.com.audioprocessor.DataCollectionService;
 import fruitbasket.com.audioprocessor.R;
 import fruitbasket.com.audioprocessor.process.PCondition;
 import fruitbasket.com.audioprocessor.play.AudioOutConfig;
 import fruitbasket.com.audioprocessor.waveProducer.WaveType;
+
+import static android.support.v7.widget.StaggeredGridLayoutManager.TAG;
 
 /**
  * Created by Study on 21/06/2016.
@@ -54,25 +59,29 @@ public class MainFragment extends Fragment
     private RelativeLayout main_word;
     private Button main_voice;
     private LinearLayout pop_up;
+
     private boolean type_voice=false;
     private boolean pop_up_now=false;
     private List<String> Content_List=new ArrayList<>();
-
+    private static final String TAG = "MainFragment";
     private Handler handler;
     private Intent intentToRecord;
     private AudioService audioService;
     private int waveRate;
+
     private ServiceConnection serviceConnection=new ServiceConnection(){
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
             audioService =((AudioService.RecordServiceBinder)binder).getService();
             audioService.setHandler(handler);
+
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             audioService =null;
+
         }
 
     };
@@ -86,6 +95,7 @@ public class MainFragment extends Fragment
         intentToRecord=new Intent(getActivity(),AudioService.class);
         if(audioService ==null) {
             getActivity().bindService(intentToRecord, serviceConnection, Context.BIND_AUTO_CREATE);
+
             //do not execute startService()
         }
        // setState();
@@ -154,6 +164,7 @@ public class MainFragment extends Fragment
             getActivity().stopService(intentToRecord);//must stop the Service
             audioService =null;
         }
+
         super.onDestroy();
     }
 
@@ -217,7 +228,6 @@ public class MainFragment extends Fragment
             pop_up_now = true;
         } else {
             stopPlayingWave();
-
             main_voice.setText(getString(R.string.Playing));
             pop_up.setVisibility(View.GONE);
             pop_up_now = false;
@@ -245,17 +255,21 @@ public class MainFragment extends Fragment
     }
 
     private void startPlayingWave(){
+
         if(audioService!=null){
             audioService.startPlayingWave(WaveType.SIN, waveRate, AppCondition.DEFAULE_SIMPLE_RATE);
         }
+
+        Log.d(TAG,"start");
     }
 
     private void stopPlayingWave(){
         if(audioService!=null){
             audioService.stopPlayingWave();
         }
-    }
 
+        Log.d(TAG,"stop");
+    }
 
     private class MyHandler extends Handler {
 

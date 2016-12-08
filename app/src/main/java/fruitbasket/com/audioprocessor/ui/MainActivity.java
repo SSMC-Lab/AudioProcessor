@@ -16,10 +16,11 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager mViewPager;
     private Fragment mainFragment;
     private Fragment testFragment;
-
+    public static boolean isready[] = new boolean[4] ;
     public MainActivity() {
         mainFragment = new MainFragment();
         testFragment = new TestFragment();
+
     }
 
     @Override

@@ -28,6 +28,7 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:name=".ui.Setting"/>
         <service android:name="fruitbasket.com.audioprocessor.AudioService"></service>
+        <service android:name=".DataCollectionService"/>
     </application>
 
 </manifest>

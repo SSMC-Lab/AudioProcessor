@@ -1,5 +1,6 @@
 package fruitbasket.com.audioprocessor.ui;
 
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.io.File;
@@ -26,9 +28,11 @@ import java.lang.ref.WeakReference;
 
 import fruitbasket.com.audioprocessor.AudioService;
 import fruitbasket.com.audioprocessor.AppCondition;
+import fruitbasket.com.audioprocessor.DataCollectionService;
 import fruitbasket.com.audioprocessor.R;
 import fruitbasket.com.audioprocessor.process.PCondition;
 import fruitbasket.com.audioprocessor.play.AudioOutConfig;
+import fruitbasket.com.audioprocessor.utilities.Utilities;
 import fruitbasket.com.audioprocessor.waveProducer.WaveType;
 
 /**
@@ -50,7 +54,7 @@ public class TestFragment extends Fragment {
     private TextView recognizeTextView;
     private ToggleButton playPcm;
     private EditText pcmAudioPath;
-
+    private ProgressDialog progressDialog ;
     private ToggleButton recordWav;
     private RadioGroup wavchannelIn;
     private ToggleButton playWav;
@@ -61,6 +65,8 @@ public class TestFragment extends Fragment {
 
     private Intent intentToRecord;
     private AudioService audioService;
+    private boolean isBinded = false;
+    private Intent dcServiceIntent;
     private ServiceConnection serviceConnection=new ServiceConnection(){
 
         @Override
@@ -76,6 +82,17 @@ public class TestFragment extends Fragment {
             audioService =null;
         }
 
+    };
+    private ServiceConnection serviceConnection2 = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            isBinded = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            isBinded = false;
+        }
     };
 
     public TestFragment(){}
@@ -108,6 +125,7 @@ public class TestFragment extends Fragment {
             getActivity().stopService(intentToRecord);//must stop the Service
             audioService =null;
         }
+        stopCollection();
         super.onDestroy();
     }
 
@@ -199,6 +217,50 @@ public class TestFragment extends Fragment {
         if(audioService!=null){
             audioService.stopPlayingWave();
         }
+
+    }
+    private void startCollection() {
+        Log.d(TAG, "startCollection()");
+        if (isBinded == false) {
+            getActivity().bindService(dcServiceIntent, serviceConnection2, Context.BIND_AUTO_CREATE);
+            Toast.makeText(getActivity(), "start collects data", Toast.LENGTH_SHORT).show();
+            //donot need isBinded=true;
+        }
+        //do not start the Service
+    }
+    private void stopCollection() {
+        Log.d(TAG, "stopCollection()");
+        if (isBinded == true) {
+            getActivity().unbindService(serviceConnection2);
+            getActivity().stopService(dcServiceIntent);//must stop the Service
+            isBinded = false;
+            progressDialog = new ProgressDialog(getContext());
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.setCancelable(false);// 设置是否可以通过点击Back键取消
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setTitle("正在保存数据,请不要退出");
+            progressDialog.show();
+            new Thread(){
+                public void  run(){
+                    boolean flag  = true;
+                    Log.d(TAG,"in progressDialog");
+                    while(flag){
+                        for(int i=1;i<=3;i++){
+                            if (MainActivity.isready[i]);
+                            else {
+                                flag = true;
+                                break;
+                            }
+                            if(i==2)
+                                flag=false;
+                        }
+
+                    }
+                    progressDialog.dismiss();
+                }
+            }.start();
+            Toast.makeText(getContext(), "stop", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void startSendingText(){
@@ -226,6 +288,7 @@ public class TestFragment extends Fragment {
         if(audioService!=null){
             audioService.startRecord();
         }
+
     }
 
     private void stopRecord(){
@@ -233,6 +296,7 @@ public class TestFragment extends Fragment {
         if(audioService!=null){
             audioService.stopRecord();
         }
+
     }
 
     private void startFrequenceDetect(){
@@ -274,6 +338,8 @@ public class TestFragment extends Fragment {
         if(audioService!=null){
             audioService.startRecordWav();
         }
+        dcServiceIntent = new Intent(getActivity(), DataCollectionService.class);
+        startCollection();
     }
 
     private void stopRecordWav(){
@@ -281,6 +347,9 @@ public class TestFragment extends Fragment {
         if(audioService!=null){
             audioService.stopRecordWav();
         }
+        Log.d(TAG,Utilities.getTime());
+        stopCollection();
+        Toast.makeText(getActivity(), Utilities.getTime(),Toast.LENGTH_SHORT).show();
     }
 
     private void startPlayWav(){
@@ -401,9 +470,11 @@ public class TestFragment extends Fragment {
                         recordWav.setChecked(false);
 
                         startRecord();
+
                     }
                     else{
                         stopRecord();
+
                     }
                     break;
 
@@ -429,7 +500,6 @@ public class TestFragment extends Fragment {
                         waveProducer.setChecked(false);
                         sendTextToggle.setChecked(false);
                         playWav.setChecked(false);
-
                         startPlayPcm();
                     }
                     else{
@@ -443,7 +513,6 @@ public class TestFragment extends Fragment {
                         frequenceDectector.setChecked(false);
                         stopRecord();
                         record.setChecked(false);
-
                         startRecordWav();
                     }
                     else{
@@ -459,7 +528,6 @@ public class TestFragment extends Fragment {
                         waveProducer.setChecked(false);
                         sendTextToggle.setChecked(false);
                         playPcm.setChecked(false);
-
                         startPlayWav();
                     }
                     else{
