@@ -16,6 +16,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +31,7 @@ import android.view.MenuItem;
 import android.view.MenuInflater;
 import android.view.inputmethod.InputMethodManager;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,6 +64,8 @@ public class MainFragment extends Fragment
     private Intent intentToRecord;
     private AudioService audioService;
     private int waveRate;
+    private boolean is_Sending = false;
+
     private ServiceConnection serviceConnection=new ServiceConnection(){
 
         @Override
@@ -198,15 +202,14 @@ public class MainFragment extends Fragment
     }
 
     private void SendMsg() {
-            String get_str=edit_text.getText().toString();
-            if(get_str.length()>0) {
-                Content_List.add(get_str);
-                myAdapter.notifyDataSetChanged();
-                edit_text.setText("");
-                InputMethodManager imm = (InputMethodManager)
-                        getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
-           }
+        if(is_Sending == true) {
+
+            stopSendingText();
+        } else {
+
+
+            startSendingText();
+        }
     }
 
     private void solve_pop() {
@@ -237,7 +240,7 @@ public class MainFragment extends Fragment
                 break;
             case 2:
                 audioService.setChannelOut(AudioOutConfig.CHANNEL_OUT_BOTH);
-                break;
+                break;+
         };
         waveRate = prefs.getInt(Setting.HZ, 0)*1000;
         Log.d("Liar"," "+waveRate);
@@ -246,6 +249,9 @@ public class MainFragment extends Fragment
 
     private void startPlayingWave(){
         if(audioService!=null){
+            stopSendingText();
+            stopPlayPcm();
+            stopPlayWav();
             audioService.startPlayingWave(WaveType.SIN, waveRate, AppCondition.DEFAULE_SIMPLE_RATE);
         }
     }
@@ -256,6 +262,109 @@ public class MainFragment extends Fragment
         }
     }
 
+    private void startSendingText(){
+        if(audioService!=null){
+            String get_str=edit_text.getText().toString();
+            if(TextUtils.isEmpty(get_str)==false){
+                stopPlayingWave();
+                stopPlayPcm();
+                stopPlayWav();
+
+                send.setText("停止");
+                is_Sending ^= true;
+                Content_List.add(get_str);
+                myAdapter.notifyDataSetChanged();
+                edit_text.setText("");
+                InputMethodManager imm = (InputMethodManager)
+                        getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+                audioService.startSendingText(get_str);
+            }
+            else{
+                Log.i("Liar","TextUtils.isEmpty(string)==true : the string is empty");
+            }
+        }
+    }
+
+    private void stopSendingText(){
+        if(audioService!=null){
+            send.setText("发送");
+            is_Sending ^= true;
+            audioService.stopSendingText();
+        }
+    }
+
+    private void startRecord(){
+        if(audioService!=null){
+            audioService.startRecord();
+        }
+    }
+
+    private void stopRecord(){
+        if(audioService!=null){
+            audioService.stopRecord();
+        }
+    }
+
+    private void startFrequenceDetect(){
+        if(audioService!=null){
+            audioService.startRecognition();
+        }
+    }
+
+    private void stopFrequenceDetect(){
+        if(audioService!=null){
+            audioService.stopRecognition();
+        }
+    }
+
+    private void startPlayPcm(){
+        if(audioService!=null){
+            String string=edit_text.getText().toString().trim();
+            if(!TextUtils.isEmpty(string)){
+                audioService.startPlayPcm(AppCondition.APP_FILE_DIR+ File.separator+string);
+            }
+            else{
+
+            }
+        }
+    }
+
+    private void stopPlayPcm(){
+        if(audioService!=null){
+            audioService.stopPlayPcm();
+        }
+    }
+
+    private void startRecordWav(){
+        if(audioService!=null){
+            audioService.startRecordWav();
+        }
+    }
+
+    private void stopRecordWav(){
+        if(audioService!=null){
+            audioService.stopRecordWav();
+        }
+    }
+
+    private void startPlayWav(){
+        if(audioService!=null){
+            String string=edit_text.getText().toString().trim();
+            if(!TextUtils.isEmpty(string)){
+                audioService.startPlayWav(AppCondition.APP_FILE_DIR+ File.separator+string);
+            }
+            else{
+
+            }
+        }
+    }
+
+    private void stopPlayWav(){
+        if(audioService!=null){
+            audioService.stopPlayWav();
+        }
+    }
 
     private class MyHandler extends Handler {
 
