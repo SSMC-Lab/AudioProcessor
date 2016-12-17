@@ -32,6 +32,7 @@ import android.view.MenuInflater;
 import android.view.inputmethod.InputMethodManager;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,6 +66,7 @@ public class MainFragment extends Fragment
     private AudioService audioService;
     private int waveRate;
     private boolean is_Sending = false;
+    private String send_str = null;
 
     private ServiceConnection serviceConnection=new ServiceConnection(){
 
@@ -101,7 +103,7 @@ public class MainFragment extends Fragment
         setHasOptionsMenu(true);
         View rootView = inflater.inflate(R.layout.main_fragment,container,false);
         send = (Button) rootView.findViewById(R.id.main_send);
-        send.setOnClickListener(this);
+        send.setOnClickListener(MainFragment.this);
 
         type_change = (ImageView) rootView.findViewById(R.id.main_type_change);
         type_change.setOnClickListener(this);
@@ -203,11 +205,10 @@ public class MainFragment extends Fragment
 
     private void SendMsg() {
         if(is_Sending == true) {
-
+            stopFrequenceDetect();
             stopSendingText();
         } else {
-
-
+            startFrequenceDetect();
             startSendingText();
         }
     }
@@ -220,7 +221,6 @@ public class MainFragment extends Fragment
             pop_up_now = true;
         } else {
             stopPlayingWave();
-
             main_voice.setText(getString(R.string.Playing));
             pop_up.setVisibility(View.GONE);
             pop_up_now = false;
@@ -240,11 +240,9 @@ public class MainFragment extends Fragment
                 break;
             case 2:
                 audioService.setChannelOut(AudioOutConfig.CHANNEL_OUT_BOTH);
-                break;+
+                break;
         };
         waveRate = prefs.getInt(Setting.HZ, 0)*1000;
-        Log.d("Liar"," "+waveRate);
-        Log.d("Liar",option);
     }
 
     private void startPlayingWave(){
@@ -264,21 +262,19 @@ public class MainFragment extends Fragment
 
     private void startSendingText(){
         if(audioService!=null){
-            String get_str=edit_text.getText().toString();
-            if(TextUtils.isEmpty(get_str)==false){
+            send_str =edit_text.getText().toString();
+            if(TextUtils.isEmpty(send_str)==false){
                 stopPlayingWave();
                 stopPlayPcm();
                 stopPlayWav();
 
                 send.setText("停止");
                 is_Sending ^= true;
-                Content_List.add(get_str);
-                myAdapter.notifyDataSetChanged();
                 edit_text.setText("");
                 InputMethodManager imm = (InputMethodManager)
                         getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
-                audioService.startSendingText(get_str);
+                audioService.startSendingText(send_str);
             }
             else{
                 Log.i("Liar","TextUtils.isEmpty(string)==true : the string is empty");
@@ -367,11 +363,17 @@ public class MainFragment extends Fragment
     }
 
     private class MyHandler extends Handler {
-
         @Override
         public void handleMessage(Message message){
-            if(message.what== PCondition.AUDIO_PROCESSOR){
 
+            if(message.what== PCondition.AUDIO_PROCESSOR){
+                Bundle bundle=message.getData();
+
+                String recognizeString=bundle.getString(PCondition.KEY_RECOGNIZE_STRING);
+                int frequency=bundle.getInt(PCondition.KEY_FREQUENCY);
+                Content_List.add(send_str + "\n\n\n" + recognizeString + "   " + frequency);
+                myAdapter.notifyDataSetChanged();
+                stopSendingText();
             }
         }
     }
