@@ -10,7 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import fruitbasket.com.audioprocessor.R;
 
 public class MainActivity extends AppCompatActivity {
-
+    /**/
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
     private ViewPager mViewPager;
@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
 
     public MainActivity() {
         mainFragment = new MainFragment();
-        testFragment = new TestFragment();
+        //testFragment = new TestFragment();
     }
 
     @Override
@@ -44,15 +44,13 @@ public class MainActivity extends AppCompatActivity {
                 case 0:
                     return mainFragment;
 
-                case 1:
-                    return testFragment;
             }
             return null;
         }
 
         @Override
         public int getCount() {
-            return 2;
+            return 1;
         }
 
         @Override
@@ -60,8 +58,6 @@ public class MainActivity extends AppCompatActivity {
             switch (position) {
                 case 0:
                     return "SoundProcessor";
-                case 1:
-                    return "Test";
             }
             return null;
         }

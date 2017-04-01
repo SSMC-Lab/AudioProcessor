@@ -42,7 +42,8 @@ final public class WaveProducer {
 		double sampleCountInWave=sampleRate /(double)waveRate;//每一个Sin波中，包含的样本点数量
 		for(int i=0;i<wave.length;++i){
 			wave[i]=(short) (WAVE_RANGE*
-					Math.sin(2.0 * Math.PI * i / (sampleCountInWave))
+					//Math.sin(2.0 * Math.PI * (i / sampleCountInWave-Math.floor(i / sampleCountInWave)))
+					Math.sin(2.0 * Math.PI * i / sampleCountInWave)
 			);
 		}
 		return wave;

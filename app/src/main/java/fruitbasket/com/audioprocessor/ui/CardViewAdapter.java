@@ -30,7 +30,9 @@ public class CardViewAdapter
     {
         String content = list.get(i);
         Log.d("Liar",content);
-        viewHolder.textView1.setText(content);
+
+        viewHolder.textView1.setText(content.substring(0,content.indexOf("\n\n\n")));
+        viewHolder.textView2.setText(content.substring(content.indexOf("\n\n\n") + 3));
     }
 
     @Override
