@@ -17,6 +17,7 @@ import fruitbasket.com.audioprocessor.waveProducer.WaveType;
 
 /**
  * 用于播放原始音频（pcm）
+ * ///会导致一种bug：当调用releaseResource()后，startPlaying()中的现成仍在运行，导致异常
  */
 public class AudioTrackWrapper {
 	private static final String TAG=AudioTrackWrapper.class.toString();
@@ -101,10 +102,11 @@ public class AudioTrackWrapper {
 	 * @param sampleRate 设备实际的发声频率
      */
     public void startPlaying(final WaveType waveType, final int waveRate, final int sampleRate){
-        final int bufferSize = AudioTrack.getMinBufferSize(
+        final int bufferSize = 2*AudioTrack.getMinBufferSize(///
                 sampleRate,
                 AudioFormat.CHANNEL_OUT_MONO,
                 AudioFormat.ENCODING_PCM_16BIT);
+		Log.i(TAG,"bufferSize=="+bufferSize);
 
         audioTrack=new AudioTrack(
                 AudioManager.STREAM_MUSIC,
@@ -120,10 +122,43 @@ public class AudioTrackWrapper {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                short[] wave=WaveProducer.getWave(waveType,waveRate,sampleRate,bufferSize);
+
+				/*double sampleCountInWave=sampleRate /(double)waveRate;//每一个Sin波中，包含的样本点数量
+				Log.i(TAG,"sampleCountInWave=="+sampleCountInWave);
+				int adjustBufferSize=bufferSize;
+				Log.i(TAG,"adjustBufferSize/sampleCountInWave=="+adjustBufferSize/sampleCountInWave);
+				Log.i(TAG,"(adjustBufferSize-1)/sampleCountInWave=="+(adjustBufferSize-1)/sampleCountInWave);
+				Log.i(TAG,"Math.floor(adjustBufferSize/sampleCountInWave)=="+Math.floor(adjustBufferSize/sampleCountInWave));
+				Log.i(TAG,"Math.floor((adjustBufferSize-1)/sampleCountInWave)=="+Math.floor((adjustBufferSize-1)/sampleCountInWave));
+				while(
+						Math.floor(adjustBufferSize/sampleCountInWave)==
+								Math.floor((adjustBufferSize-1)/sampleCountInWave)
+						){
+					adjustBufferSize--;
+					Log.i(TAG,"adjustBufferSize--");
+				}
+				Log.i(TAG,"adjustBufferSize/sampleCountInWave=="+adjustBufferSize/sampleCountInWave);
+				Log.i(TAG,"(adjustBufferSize-1)/sampleCountInWave=="+(adjustBufferSize-1)/sampleCountInWave);
+				Log.i(TAG,"Math.floor(adjustBufferSize/sampleCountInWave)=="+Math.floor(adjustBufferSize/sampleCountInWave));
+				Log.i(TAG,"Math.floor((adjustBufferSize-1)/sampleCountInWave)=="+Math.floor((adjustBufferSize-1)/sampleCountInWave));
+				Log.i(TAG,"adjustBufferSize=="+adjustBufferSize);
+                short[] wave=WaveProducer.getWave(waveType,waveRate,sampleRate,adjustBufferSize);*/
+
+
+				double sampleCountInWave=sampleRate /(double)waveRate;//每一个Sin波中，包含的样本点数量
+				short[] wave=new short[bufferSize];
+				int index=0;
 
                 while(audioTrack!=null&&audioTrack.getPlayState()==AudioTrack.PLAYSTATE_PLAYING){
-                    audioTrack.write(wave,0,wave.length);
+
+					///因为解决不了周期性噪声的问题，因此这里采用边计算边播放的傻办法
+					for(int i=0;i<wave.length;++i,++index){
+						wave[i]=(short) (Short.MAX_VALUE*
+								Math.sin(2.0 * Math.PI * index / sampleCountInWave)
+						);
+					}
+
+					audioTrack.write(wave,0,wave.length);
                 }
             }
         }).start();
